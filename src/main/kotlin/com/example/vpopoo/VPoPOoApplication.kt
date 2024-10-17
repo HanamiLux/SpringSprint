@@ -1,4 +1,4 @@
-package com.example.VPoPOo
+package com.example.vpopoo
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration

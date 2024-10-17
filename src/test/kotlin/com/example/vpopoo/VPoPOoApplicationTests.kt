@@ -1,4 +1,4 @@
-package com.example.VPoPOo
+package com.example.vpopoo
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

@@ -1,4 +1,4 @@
-package com.example.VPoPOo.controllers
+package com.example.vpopoo.controllers
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping

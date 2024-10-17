@@ -1,4 +1,4 @@
-package com.example.VPoPOo.model
+package com.example.vpopoo.model
 
 open class TeacherModel(
     var id: Int,

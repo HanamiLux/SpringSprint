@@ -1,6 +1,6 @@
-package com.example.VPoPOo.service
+package com.example.vpopoo.service
 
-import com.example.VPoPOo.model.StudentModel
+import com.example.vpopoo.model.StudentModel
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 

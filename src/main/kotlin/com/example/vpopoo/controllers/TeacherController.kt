@@ -1,7 +1,7 @@
-package com.example.VPoPOo.controllers
+package com.example.vpopoo.controllers
 
-import com.example.VPoPOo.model.TeacherModel
-import com.example.VPoPOo.service.TeacherService
+import com.example.vpopoo.model.TeacherModel
+import com.example.vpopoo.service.TeacherService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Controller

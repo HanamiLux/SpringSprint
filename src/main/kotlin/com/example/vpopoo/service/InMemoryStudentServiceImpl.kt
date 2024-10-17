@@ -1,7 +1,7 @@
-package com.example.VPoPOo.service
+package com.example.vpopoo.service
 
-import com.example.VPoPOo.model.StudentModel
-import com.example.VPoPOo.repository.InMemoryStudentRepository
+import com.example.vpopoo.model.StudentModel
+import com.example.vpopoo.repository.InMemoryStudentRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
