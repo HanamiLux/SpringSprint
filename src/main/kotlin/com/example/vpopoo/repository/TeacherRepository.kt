@@ -13,7 +13,7 @@ interface TeacherRepository : JpaRepository<TeacherModel, Int> {
 
     @Query("SELECT t FROM TeacherModel t " +
             "WHERE (:name IS NULL OR t.name = :name) " +
-            "AND (:lastName IS NULL OR t.lastName = :lastName)")
+            "OR (:lastName IS NULL OR t.lastName = :lastName)")
     fun findTeacherByName(
         @Param("name") name: String?,
         @Param("lastName") lastName: String?

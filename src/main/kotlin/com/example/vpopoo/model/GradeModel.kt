@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size
 
 @Entity
 @Table(name = "grades")
-open class Grade @JvmOverloads constructor(
+open class GradeModel @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -16,7 +16,7 @@
   <select th:field="*{subject}" required>
     <option value="">Выберите предмет</option>
     <th:block th:each="sub : ${availableSubjects}">
-      <option th:value="${sub}" th:text="${sub}"></option>
+      <option th:value="${sub.id}" th:text="${sub.name}"></option>
     </th:block>
   </select>
   <input type="number" th:field="*{age}" placeholder="Возраст" required>

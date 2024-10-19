@@ -29,5 +29,5 @@ open class StudentModel @JvmOverloads constructor(
     var university: University? = null,
 
     @OneToOne(mappedBy = "student", cascade = [CascadeType.ALL])
-    var grade: Grade? = null
+    var grade: GradeModel? = null
 )

@@ -37,7 +37,7 @@ class StudentController {
 
         val students = studentsPage?.content
         val availableUniversities = universityService?.findAllUniversities()
-        val availableGrades = gradeService?.findAllGrades()
+        val availableGrades = gradeService?.findAllGradesList()
 
         model.addAttribute("availableUniversities", availableUniversities)
         model.addAttribute("availableGrades", availableGrades)
@@ -65,7 +65,7 @@ class StudentController {
         }
 
         val availableUniversities = universityService?.findAllUniversities()
-        val availableGrades = gradeService?.findAllGrades()
+        val availableGrades = gradeService?.findAllGradesList()
 
         model.addAttribute("students", filteredStudents)
         model.addAttribute("availableUniversities", availableUniversities)
@@ -84,7 +84,7 @@ class StudentController {
         if (bindingResult.hasErrors()) {
             val students = studentService?.findAllStudent()
             val availableUniversities = universityService?.findAllUniversities()
-            val availableGrades = gradeService?.findAllGrades()
+            val availableGrades = gradeService?.findAllGradesList()
             model.addAttribute("students", students)
             model.addAttribute("availableUniversities", availableUniversities)
             model.addAttribute("availableGrades", availableGrades)

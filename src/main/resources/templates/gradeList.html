@@ -10,7 +10,7 @@
 
 <h2>Создать оценку</h2>
 
-<form action="/grades/addOrUpdate" method="post" th:object="${grade}">
+<form action="/grades/addOrUpdate" method="post" th:object="${gradeModel}">
   <input type="text" th:field="*{gradeContent}" placeholder="Оценка" required>
   <button type="submit">Добавить оценку</button>
 </form>
@@ -18,13 +18,12 @@
 <h2>Все оценки:</h2>
 
 <ul>
-  <th:block th:each="grade_el : ${grades}">
+  <th:block th:each="grade_el : ${gradeModels}">
     <li>
       <span th:text="${grade_el.gradeContent}"></span>
       <form action="/grades/addOrUpdate" method="post" style="display:inline;">
         <input type="hidden" name="id" th:value="${grade_el.id}"/>
-        <input type="text" name="grade" th:value="${grade_el.gradeContent}" placeholder="Оценка" required/>
-        <input type="hidden" name="student" th:value="${grade_el.student}"/>
+        <input type="text" name="gradeContent" th:value="${grade_el.gradeContent}" placeholder="Оценка" required/>
         <button type="submit">Обновить</button>
       </form>
       <form action="/grades/delete" method="post" style="display:inline;">
@@ -43,7 +42,7 @@
 <h2>Удаление оценок</h2>
 <form action="/grades/deleteMultiple" method="post">
   <ul>
-    <th:block th:each="grade_el : ${grades}">
+    <th:block th:each="grade_el : ${allGradeModels}">
       <li>
         <input type="checkbox" name="gradeIds" th:value="${grade_el.id}">
         <span th:text="${grade_el.gradeContent}"></span>

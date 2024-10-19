@@ -14,9 +14,9 @@ interface StudentRepository : JpaRepository<StudentModel, Int> {
 
     @Query("SELECT s FROM StudentModel s " +
             "WHERE (:name IS NULL OR s.name = :name) " +
-            "AND (:lastName IS NULL OR s.lastName = :lastName) " +
-            "AND (:firstName IS NULL OR s.firstName = :firstName) " +
-            "AND (:middleName IS NULL OR s.middleName = :middleName)")
+            "OR (:lastName IS NULL OR s.lastName = :lastName) " +
+            "OR (:firstName IS NULL OR s.firstName = :firstName) " +
+            "OR (:middleName IS NULL OR s.middleName = :middleName)")
     fun findStudentByName(
         @Param("name") name: String?,
         @Param("lastName") lastName: String?,

@@ -104,7 +104,8 @@ class TeacherController {
         @RequestParam name: String?,
         @RequestParam lastName: String?
     ): String {
-        model.addAttribute("teachers", teacherService?.findTeacherByName(name, lastName))
+        val foundTeachers = teacherService?.findTeacherByName(name, lastName)
+        model.addAttribute("teachers", foundTeachers)
         model.addAttribute("teacher", TeacherModel()) // Добавьте эту строку
         return "teacherList"
     }

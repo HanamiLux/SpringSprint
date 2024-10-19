@@ -1,6 +1,6 @@
 package com.example.vpopoo.service
 
-import com.example.vpopoo.model.Grade
+import com.example.vpopoo.model.GradeModel
 import com.example.vpopoo.repository.GradeRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
@@ -9,23 +9,23 @@ import org.springframework.stereotype.Service
 
 @Service
 class GradeServiceImpl @Autowired constructor(private val gradeRepository: GradeRepository) : GradeService {
-    override fun findAllGrades(): List<Grade?> {
-        return gradeRepository.findAll()
+    override fun findAllGrades(pageable: Pageable): Page<GradeModel> {
+        return gradeRepository.findAllByLogic(pageable)
     }
 
-    override fun findGradeById(id: Int): Grade? {
+    override fun findGradeById(id: Int): GradeModel? {
         return gradeRepository.findById(id).orElseThrow()
     }
 
-    override fun findPaginatedGrades(pageable: Pageable): Page<Grade?> {
-        return gradeRepository.findAll(pageable)
+    override fun findAllGradesList(): List<GradeModel?> {
+        return gradeRepository.findAll()
     }
 
-    override fun findGradeByName(grade: String?): List<Grade> {
+    override fun findGradeByName(grade: String?): List<GradeModel> {
         return gradeRepository.findGradeByGrade(grade)
     }
 
-    override fun addGrade(grade: Grade): Grade? {
+    override fun addGrade(grade: GradeModel): GradeModel? {
         return gradeRepository.save(grade)
     }
 
