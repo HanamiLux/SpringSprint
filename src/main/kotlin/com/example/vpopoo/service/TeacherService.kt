@@ -10,7 +10,6 @@ interface TeacherService {
     fun findPaginatedTeachers(pageable: Pageable): Page<TeacherModel?>
     fun findTeacherByName(name: String?, lastName: String?): List<TeacherModel?>
     fun addTeacher(teacher: TeacherModel): TeacherModel?
-    fun updateTeacher(teacher: TeacherModel): TeacherModel?
     fun deleteTeacher(id: Int)
     fun deleteMultipleTeachers(teacherIds: List<Int>)
     fun logicalDeleteTeacher(id: Int)

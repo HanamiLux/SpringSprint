@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>Список учителей</title>
@@ -7,12 +7,20 @@
 </head>
 <body>
 <h1 style="text-align: center">Список учителей</h1>
-<form action="/teachers/add" method="post">
-  <input type="text" name="name" placeholder="Имя" required>
-  <input type="text" name="lastName" placeholder="Фамилия" required>
-  <input type="text" name="subject" placeholder="Предмет" required>
-  <input type="number" name="age" placeholder="Возраст" required>
-  <input type="number" name="stage" placeholder="Стаж" required>
+
+<h2>Создать учителя</h2>
+
+<form action="/teachers/addOrUpdate" method="post" th:object="${teacher}">
+  <input type="text" th:field="*{name}" placeholder="Имя" required>
+  <input type="text" th:field="*{lastName}" placeholder="Фамилия" required>
+  <select th:field="*{subject}" required>
+    <option value="">Выберите предмет</option>
+    <th:block th:each="sub : ${availableSubjects}">
+      <option th:value="${sub}" th:text="${sub}"></option>
+    </th:block>
+  </select>
+  <input type="number" th:field="*{age}" placeholder="Возраст" required>
+  <input type="number" th:field="*{stage}" placeholder="Стаж" required>
   <button type="submit">Добавить учителя</button>
 </form>
 
@@ -48,7 +56,7 @@
     <li>
       <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' ' + ${teacher.subject} + ' ' + ${teacher.age} +
 ' ' + ${teacher.stage}"></span>
-      <form action="/teachers/update" method="post" style="display:inline;">
+      <form action="/teachers/addOrUpdate" method="post" style="display:inline;">
         <input type="hidden" name="id" th:value="${teacher.id}"/>
         <input type="text" name="name" placeholder="Имя" th:value="${teacher.name}" required/>
         <input type="text" name="lastName" placeholder="Фамилия" th:value="${teacher.lastName}" required/>
@@ -67,7 +75,6 @@
       </form>
     </li>
   </th:block>
-  <br><br>
 </ul>
 
 <br><br>
