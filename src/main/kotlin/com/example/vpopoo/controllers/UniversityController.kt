@@ -32,7 +32,7 @@ class UniversityController {
         model.addAttribute("currentPage", universitiesPage?.number)
         model.addAttribute("totalPages", universitiesPage?.totalPages)
         model.addAttribute("pageSize", size)
-        model.addAttribute("university", University()) // Добавьте эту строку
+        model.addAttribute("university", University())
 
         return "universityList"
     }

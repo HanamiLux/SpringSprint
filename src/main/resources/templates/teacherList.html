@@ -13,8 +13,8 @@
 <form action="/teachers/addOrUpdate" method="post" th:object="${teacher}">
   <input type="text" th:field="*{name}" placeholder="Имя" required>
   <input type="text" th:field="*{lastName}" placeholder="Фамилия" required>
-  <select th:field="*{subject}" required>
-    <option value="">Выберите предмет</option>
+  <select th:field="*{subjects}" multiple required>
+    <option value="">Выберите предметы</option>
     <th:block th:each="sub : ${availableSubjects}">
       <option th:value="${sub.id}" th:text="${sub.name}"></option>
     </th:block>
@@ -54,13 +54,22 @@
 <ul>
   <th:block th:each="teacher : ${teachers}">
     <li>
-      <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' ' + ${teacher.subject} + ' ' + ${teacher.age} +
-' ' + ${teacher.stage}"></span>
+      <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' '"></span>
+      <span>
+            <th:block th:each="sub : ${teacher.subjects}">
+                <span th:text="${sub.name} + ' '"></span>
+            </th:block>
+        </span>
+      <span th:text="' ' + ${teacher.age} + ' ' + ${teacher.stage}"></span>
       <form action="/teachers/addOrUpdate" method="post" style="display:inline;">
         <input type="hidden" name="id" th:value="${teacher.id}"/>
         <input type="text" name="name" placeholder="Имя" th:value="${teacher.name}" required/>
         <input type="text" name="lastName" placeholder="Фамилия" th:value="${teacher.lastName}" required/>
-        <input type="text" name="subject" placeholder="Предмет" th:value="${teacher.subject}" required/>
+        <select name="subject" th:value="${teacher.subject}" th:selected="${teacher.subject}" multiple required>
+          <th:block th:each="sub : ${availableSubjects}">
+            <option th:value="${sub.id}" th:selected="${teacher.subjects.contains(sub)}" th:text="${sub.name}"></option>
+          </th:block>
+        </select>
         <input type="text" name="age" placeholder="Возраст" th:value="${teacher.age}" required/>
         <input type="text" name="stage" placeholder="Стаж" th:value="${teacher.stage}" required/>
         <button type="submit">Обновить</button>

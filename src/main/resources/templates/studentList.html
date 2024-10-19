@@ -20,8 +20,8 @@
 
   <select th:field="*{grade.id}" required>
     <option value="">Выберите оценку</option>
-    <th:block th:each="grade : ${availableGrades}">
-      <option th:value="${grade.id}" th:text="${grade.gradeContent}"></option>
+    <th:block th:each="grade_el : ${availableGrades}">
+      <option th:value="${grade_el.id}" th:text="${grade_el.gradeContent}"></option>
     </th:block>
   </select>
 

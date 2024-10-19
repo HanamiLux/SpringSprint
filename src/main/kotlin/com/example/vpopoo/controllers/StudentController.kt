@@ -88,7 +88,7 @@ class StudentController {
             model.addAttribute("students", students)
             model.addAttribute("availableUniversities", availableUniversities)
             model.addAttribute("availableGrades", availableGrades)
-            model.addAttribute("student", newStudent) // Добавьте эту строку
+            model.addAttribute("student", newStudent)
             return "studentList"
         }
         studentService?.addStudent(newStudent)

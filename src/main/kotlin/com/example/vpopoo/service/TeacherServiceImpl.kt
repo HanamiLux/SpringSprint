@@ -1,6 +1,8 @@
 package com.example.vpopoo.service
 
+import com.example.vpopoo.model.Subject
 import com.example.vpopoo.model.TeacherModel
+import com.example.vpopoo.repository.SubjectRepository
 import com.example.vpopoo.repository.TeacherRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
@@ -12,7 +14,7 @@ import org.springframework.stereotype.Service
 //так же мы тут можем настроить инкапсуляцию
 //А если простыми словами тут происходит разделенние запросов от контроллера к сервису
 @Service
-class TeacherServiceImpl @Autowired constructor(private val teacherRepository: TeacherRepository) : TeacherService {
+class TeacherServiceImpl @Autowired constructor(private val teacherRepository: TeacherRepository, private val subjectRepository: SubjectRepository) : TeacherService {
     override fun findAllTeachers(): List<TeacherModel?> {
         return teacherRepository.findAll()
     }
@@ -22,6 +24,8 @@ class TeacherServiceImpl @Autowired constructor(private val teacherRepository: T
     }
 
     override fun addTeacher(teacher: TeacherModel): TeacherModel? {
+        val subjects = teacher.subjects.map { it.id?.let { it1 -> subjectRepository.findById(it1).orElseThrow { RuntimeException("Subject not found") } } }
+        teacher.subjects = subjects as MutableList<Subject>
         return teacherRepository.save(teacher)
     }
 

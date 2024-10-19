@@ -32,7 +32,7 @@ class SubjectController {
         model.addAttribute("currentPage", subjectsPage?.number)
         model.addAttribute("totalPages", subjectsPage?.totalPages)
         model.addAttribute("pageSize", size)
-        model.addAttribute("subject", Subject()) // Добавьте эту строку
+        model.addAttribute("subject", Subject())
 
         return "subjectList"
     }
