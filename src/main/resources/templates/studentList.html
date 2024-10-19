@@ -3,144 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <title>Список студентов</title>
-  <link rel="stylesheet" href="/styles.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-<h1 style="text-align: center">Список студентов</h1>
+<body class="bg-gray-100 font-sans">
+<div class="min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Список студентов</h1>
 
-<h2>Создать студента</h2>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Создать студента</h2>
+    <form action="/students/addOrUpdate" method="post" th:object="${student}" class="mb-6">
+      <select th:field="*{university.id}" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="">Выберите университет</option>
+        <th:block th:each="uni : ${availableUniversities}">
+          <option th:value="${uni.id}" th:text="${uni.name}"></option>
+        </th:block>
+      </select>
 
-<form action="/students/addOrUpdate" method="post" th:object="${student}">
-  <select th:field="*{university.id}" required>
-    <option value="">Выберите университет</option>
-    <th:block th:each="uni : ${availableUniversities}">
-      <option th:value="${uni.id}" th:text="${uni.name}"></option>
-    </th:block>
-  </select>
+      <select th:field="*{grade.id}" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="">Выберите оценку</option>
+        <th:block th:each="grade_el : ${availableGrades}">
+          <option th:value="${grade_el.id}" th:text="${grade_el.gradeContent}"></option>
+        </th:block>
+      </select>
 
-  <select th:field="*{grade.id}" required>
-    <option value="">Выберите оценку</option>
-    <th:block th:each="grade_el : ${availableGrades}">
-      <option th:value="${grade_el.id}" th:text="${grade_el.gradeContent}"></option>
-    </th:block>
-  </select>
+      <input type="text" th:field="*{name}" placeholder="Имя" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <input type="text" th:field="*{lastName}" placeholder="Фамилия" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <input type="text" th:field="*{firstName}" placeholder="Отчество" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <input type="text" th:field="*{middleName}" placeholder="Дополнительное имя" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
 
-  <input type="text" th:field="*{name}" placeholder="Имя" required>
-  <input type="text" th:field="*{lastName}" placeholder="Фамилия" required>
-  <input type="text" th:field="*{firstName}" placeholder="Отчество" required>
-  <input type="text" th:field="*{middleName}" placeholder="Дополнительное имя" required>
+      <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Добавить студента</button>
+    </form>
 
-  <button type="submit">Добавить студента</button>
-</form>
-
-<h2>Все студенты:</h2>
-<div style="display: flex; align-items: center">
-  <form action="/students/find" method="get">
-    <input type="text" name="name" placeholder="Введите имя для поиска"/>
-    <input type="text" name="lastName" placeholder="Введите фамилию для поиска" />
-    <input type="text" name="firstName" placeholder="Введите отчество для поиска"/>
-    <input type="text" name="middleName" placeholder="Введите дополнительное имя для поиска"/>
-    <button type="submit">Поиск</button>
-  </form>
-  <form action="/students" method="get" style="margin-left: 2px">
-    <button type="submit">Очистить поиск</button>
-  </form>
-</div>
-
-<br>
-<form action="/students/filter" method="get">
-  <!-- Выпадающий список для фильтрации по университету -->
-  <label for="university">Университет:</label>
-  <select id="university" name="university">
-    <option value="" selected>Все университеты</option>
-    <th:block th:each="uni : ${availableUniversities}">
-      <option th:value="${uni.name}" th:text="${uni.name}"></option>
-    </th:block>
-  </select>
-
-  <!-- Выпадающий список для фильтрации по оценке -->
-  <label for="grade">Оценка:</label>
-  <select id="grade" name="grade">
-    <option value="" selected>Все оценки</option>
-    <th:block th:each="grade : ${availableGrades}">
-      <option th:value="${grade.gradeContent}" th:text="${grade.gradeContent}"></option>
-    </th:block>
-  </select>
-
-  <button type="submit">Применить фильтр</button>
-</form>
-
-<ul>
-  <th:block th:each="student : ${students}">
-    <li>
-      <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName} +
-' ' + ' ' + ${student.university.name} + ' ' + ${student.grade.gradeContent}"></span>
-      <form action="/students/addOrUpdate" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${student.id}"/>
-        <select name="university.id" required>
-          <option value="">Выберите университет</option>
-          <th:block th:each="uni : ${availableUniversities}">
-            <option th:value="${uni.id}" th:selected="${student.university.id == uni.id}" th:text="${uni.name}"></option>
-          </th:block>
-        </select>
-
-        <select name="grade.id" required>
-          <option value="">Выберите оценку</option>
-          <th:block th:each="grade : ${availableGrades}">
-            <option th:value="${grade.id}" th:selected="${student.grade.id == grade.id}" th:text="${grade.gradeContent}"></option>
-          </th:block>
-        </select>
-
-        <input type="text" name="name" placeholder="Имя" th:value="${student.name}"/>
-        <input type="text" name="lastName" placeholder="Фамилия" th:value="${student.lastName}" required/>
-        <input type="text" name="firstName" placeholder="Отчество" th:value="${student.firstName}" required/>
-        <input type="text" name="middleName" placeholder="Дополнительное имя" th:value="${student.middleName}" required/>
-
-        <button type="submit">Обновить</button>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Все студенты:</h2>
+    <div class="flex items-center space-x-4 mb-4">
+      <form action="/students/find" method="get" class="flex space-x-2">
+        <input type="text" name="name" placeholder="Введите имя для поиска" class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <input type="text" name="lastName" placeholder="Введите фамилию для поиска" class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <input type="text" name="firstName" placeholder="Введите отчество для поиска" class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <input type="text" name="middleName" placeholder="Введите дополнительное имя для поиска" class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Поиск</button>
       </form>
-
-      <form action="/students/delete" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${student.id}"/>
-        <button type="submit" name="action" value="logical">Удалить логически</button>
+      <form action="/students" method="get" class="flex space-x-2">
+        <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Очистить поиск</button>
       </form>
-      <form action="/students/delete" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${student.id}"/>
-        <button type="submit" name="action" value="physical">Удалить физически</button>
-      </form>
-    </li>
-  </th:block>
-</ul>
+    </div>
 
-<br><br>
-<h2>Удаление студентов</h2>
-<form action="/students/deleteMultiple" method="post">
-  <ul>
-    <th:block th:each="student : ${students}">
-      <li>
-        <input type="checkbox" name="studentIds" th:value="${student.id}">
-        <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName}"></span>
-      </li>
-    </th:block>
-  </ul>
-  <button type="submit">Удалить выбранных студентов</button>
-</form>
+    <form action="/students/filter" method="get" class="mb-6">
+      <label for="university" class="block text-sm font-medium text-gray-700">Университет:</label>
+      <select id="university" name="university" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="" selected>Все университеты</option>
+        <th:block th:each="uni : ${availableUniversities}">
+          <option th:value="${uni.name}" th:text="${uni.name}"></option>
+        </th:block>
+      </select>
 
-<div>
-  <div th:if="${totalPages > 1}">
-    <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+      <label for="grade" class="block text-sm font-medium text-gray-700">Оценка:</label>
+      <select id="grade" name="grade" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="" selected>Все оценки</option>
+        <th:block th:each="grade : ${availableGrades}">
+          <option th:value="${grade.gradeContent}" th:text="${grade.gradeContent}"></option>
+        </th:block>
+      </select>
+
+      <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Применить фильтр</button>
+    </form>
+
+    <ul class="space-y-4">
+      <th:block th:each="student : ${students}">
+        <li class="flex items-center space-x-4">
+          <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName} + ' ' + ${student.university.name} + ' ' + ${student.grade.gradeContent}" class="text-gray-700"></span>
+          <form action="/students/addOrUpdate" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${student.id}"/>
+            <select name="university.id" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+              <option value="">Выберите университет</option>
+              <th:block th:each="uni : ${availableUniversities}">
+                <option th:value="${uni.id}" th:selected="${student.university.id == uni.id}" th:text="${uni.name}"></option>
+              </th:block>
+            </select>
+
+            <select name="grade.id" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+              <option value="">Выберите оценку</option>
+              <th:block th:each="grade : ${availableGrades}">
+                <option th:value="${grade.id}" th:selected="${student.grade.id == grade.id}" th:text="${grade.gradeContent}"></option>
+              </th:block>
+            </select>
+
+            <input type="text" name="name" placeholder="Имя" th:value="${student.name}" class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+            <input type="text" name="lastName" placeholder="Фамилия" th:value="${student.lastName}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+            <input type="text" name="firstName" placeholder="Отчество" th:value="${student.firstName}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+            <input type="text" name="middleName" placeholder="Дополнительное имя" th:value="${student.middleName}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+
+            <button type="submit" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Обновить</button>
+          </form>
+
+          <form action="/students/delete" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${student.id}"/>
+            <button type="submit" name="action" value="logical" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить логически</button>
+          </form>
+          <form action="/students/delete" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${student.id}"/>
+            <button type="submit" name="action" value="physical" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить физически</button>
+          </form>
+        </li>
+      </th:block>
+    </ul>
+
     <br><br>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Удаление студентов</h2>
+    <form action="/students/deleteMultiple" method="post" class="mb-6">
+      <ul class="space-y-2">
+        <th:block th:each="student : ${students}">
+          <li class="flex items-center space-x-2">
+            <input type="checkbox" name="studentIds" th:value="${student.id}" class="form-checkbox h-5 w-5 text-indigo-600">
+            <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName}" class="text-gray-700"></span>
+          </li>
+        </th:block>
+      </ul>
+      <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить выбранных студентов</button>
+    </form>
 
-    <div class="pagination">
-      <th:block th:if="${currentPage > 0}">
-        <a th:href="@{/students(page=${currentPage - 1}, size=${pageSize})}" class="pagination-button">Предыдущая</a>
-      </th:block>
+    <div th:if="${totalPages > 1}">
+      <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}" class="text-gray-700"></span>
+      <br><br>
 
-      <th:block th:if="${currentPage < totalPages - 1}">
-        <a th:href="@{/students(page=${currentPage + 1}, size=${pageSize})}" class="pagination-button">Следующая</a>
-      </th:block>
+      <div class="pagination flex justify-center space-x-4">
+        <th:block th:if="${currentPage > 0}">
+          <a th:href="@{/students(page=${currentPage - 1}, size=${pageSize})}" class="pagination-button py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Предыдущая</a>
+        </th:block>
+
+        <th:block th:if="${currentPage < totalPages - 1}">
+          <a th:href="@{/students(page=${currentPage + 1}, size=${pageSize})}" class="pagination-button py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Следующая</a>
+        </th:block>
+      </div>
+    </div>
+
+    <div class="mt-6 text-center">
+      <a href="/" class="text-indigo-600 hover:text-indigo-800">Вернуться на главную</a>
     </div>
   </div>
 </div>
-<a href="/">Вернуться на главную</a>
 </body>
 </html>

@@ -3,120 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <title>Список учителей</title>
-  <link rel="stylesheet" href="/styles.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-<h1 style="text-align: center">Список учителей</h1>
+<body class="bg-gray-100 font-sans">
+<div class="min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Список учителей</h1>
 
-<h2>Создать учителя</h2>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Создать учителя</h2>
+    <form action="/teachers/addOrUpdate" method="post" th:object="${teacher}" class="mb-6">
+      <input type="text" th:field="*{name}" placeholder="Имя" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <input type="text" th:field="*{lastName}" placeholder="Фамилия" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <select th:field="*{subjects}" multiple required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="">Выберите предметы</option>
+        <th:block th:each="sub : ${availableSubjects}">
+          <option th:value="${sub.id}" th:text="${sub.name}"></option>
+        </th:block>
+      </select>
+      <input type="number" th:field="*{age}" placeholder="Возраст" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <input type="number" th:field="*{stage}" placeholder="Стаж" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Добавить учителя</button>
+    </form>
 
-<form action="/teachers/addOrUpdate" method="post" th:object="${teacher}">
-  <input type="text" th:field="*{name}" placeholder="Имя" required>
-  <input type="text" th:field="*{lastName}" placeholder="Фамилия" required>
-  <select th:field="*{subjects}" multiple required>
-    <option value="">Выберите предметы</option>
-    <th:block th:each="sub : ${availableSubjects}">
-      <option th:value="${sub.id}" th:text="${sub.name}"></option>
-    </th:block>
-  </select>
-  <input type="number" th:field="*{age}" placeholder="Возраст" required>
-  <input type="number" th:field="*{stage}" placeholder="Стаж" required>
-  <button type="submit">Добавить учителя</button>
-</form>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Все учителя:</h2>
+    <div class="flex items-center space-x-4 mb-4">
+      <form action="/teachers/find" method="get" class="flex space-x-2">
+        <input type="text" name="name" placeholder="Введите имя" class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <input type="text" name="lastName" placeholder="Введите фамилию" class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Поиск</button>
+      </form>
+      <form action="/teachers" method="get" class="flex space-x-2">
+        <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Очистить поиск</button>
+      </form>
+    </div>
 
-<h2>Все учителя:</h2>
-<div style="display: flex; align-items: center">
-  <form action="/teachers/find" method="get">
-    <input type="text" name="name" placeholder="Введите имя"/>
-    <input type="text" name="lastName" placeholder="Введите фамилию"/>
-    <button type="submit">Поиск</button>
-  </form>
-  <form action="/teachers" method="get" style="margin-left: 2px">
-    <button type="submit">Очистить поиск</button>
-  </form>
-</div>
+    <form action="/teachers/filter" method="get" class="mb-6">
+      <label for="subject" class="block text-sm font-medium text-gray-700">Предмет:</label>
+      <select id="subject" name="subject" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="" selected>Все предметы</option>
+        <th:block th:each="sub : ${availableSubjects}">
+          <option th:value="${sub}" th:text="${sub}"></option>
+        </th:block>
+      </select>
 
-<form action="/teachers/filter" method="get">
-  <label for="subject">Предмет:</label>
-  <select id="subject" name="subject">
-    <option value="" selected>Все предметы</option>
-    <th:block th:each="sub : ${availableSubjects}">
-      <option th:value="${sub}" th:text="${sub}"></option>
-    </th:block>
-  </select>
+      <input type="number" name="age" placeholder="Мин. возраст" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <input type="number" name="stage" placeholder="Мин. стаж" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
 
-  <input type="number" name="age" placeholder="Мин. возраст"/>
-  <input type="number" name="stage" placeholder="Мин. стаж"/>
+      <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Применить фильтр</button>
+    </form>
 
-  <button type="submit">Применить фильтр</button>
-</form>
-
-<ul>
-  <th:block th:each="teacher : ${teachers}">
-    <li>
-      <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' '"></span>
-      <span>
+    <ul class="space-y-4">
+      <th:block th:each="teacher : ${teachers}">
+        <li class="flex items-center space-x-4">
+          <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' '" class="text-gray-700"></span>
+          <span>
             <th:block th:each="sub : ${teacher.subjects}">
-                <span th:text="${sub.name} + ' '"></span>
+                <span th:text="${sub.name} + ' '" class="text-gray-700"></span>
             </th:block>
-        </span>
-      <span th:text="' ' + ${teacher.age} + ' ' + ${teacher.stage}"></span>
-      <form action="/teachers/addOrUpdate" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${teacher.id}"/>
-        <input type="text" name="name" placeholder="Имя" th:value="${teacher.name}" required/>
-        <input type="text" name="lastName" placeholder="Фамилия" th:value="${teacher.lastName}" required/>
-        <select name="subject" th:value="${teacher.subject}" th:selected="${teacher.subject}" multiple required>
-          <th:block th:each="sub : ${availableSubjects}">
-            <option th:value="${sub.id}" th:selected="${teacher.subjects.contains(sub)}" th:text="${sub.name}"></option>
-          </th:block>
-        </select>
-        <input type="text" name="age" placeholder="Возраст" th:value="${teacher.age}" required/>
-        <input type="text" name="stage" placeholder="Стаж" th:value="${teacher.stage}" required/>
-        <button type="submit">Обновить</button>
-      </form>
-      <form action="/teachers/delete" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${teacher.id}"/>
-        <button type="submit" name="action" value="logical">Удалить логически</button>
-      </form>
-      <form action="/teachers/delete" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${teacher.id}"/>
-        <button type="submit" name="action" value="physical">Удалить физически</button>
-      </form>
-    </li>
-  </th:block>
-</ul>
+          </span>
+          <span th:text="' ' + ${teacher.age} + ' ' + ${teacher.stage}" class="text-gray-700"></span>
+          <form action="/teachers/addOrUpdate" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${teacher.id}"/>
+            <input type="text" name="name" placeholder="Имя" th:value="${teacher.name}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+            <input type="text" name="lastName" placeholder="Фамилия" th:value="${teacher.lastName}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+            <select name="subjects" multiple required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+              <th:block th:each="sub : ${availableSubjects}">
+                <option th:value="${sub.id}" th:selected="${teacher.subjects.contains(sub)}" th:text="${sub.name}"></option>
+              </th:block>
+            </select>
+            <input type="text" name="age" placeholder="Возраст" th:value="${teacher.age}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+            <input type="text" name="stage" placeholder="Стаж" th:value="${teacher.stage}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+            <button type="submit" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Обновить</button>
+          </form>
+          <form action="/teachers/delete" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${teacher.id}"/>
+            <button type="submit" name="action" value="logical" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить логически</button>
+          </form>
+          <form action="/teachers/delete" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${teacher.id}"/>
+            <button type="submit" name="action" value="physical" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить физически</button>
+          </form>
+        </li>
+      </th:block>
+    </ul>
 
-<br><br>
-<h2>Удаление учителей</h2>
-<form action="/teachers/deleteMultiple" method="post">
-  <ul>
-    <th:block th:each="teacher : ${teachers}">
-      <li>
-        <input type="checkbox" name="teacherIds" th:value="${teacher.id}">
-        <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' ' + ${teacher.subject} + ' ' + ${teacher.age} +
-' ' + ${teacher.stage}"></span>
-      </li>
-    </th:block>
-  </ul>
-  <button type="submit">Удалить выбранных учителей</button>
-</form>
-
-<div>
-  <div th:if="${totalPages > 1}">
-    <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
     <br><br>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Удаление учителей</h2>
+    <form action="/teachers/deleteMultiple" method="post" class="mb-6">
+      <ul class="space-y-2">
+        <th:block th:each="teacher : ${teachers}">
+          <li class="flex items-center space-x-2">
+            <input type="checkbox" name="teacherIds" th:value="${teacher.id}" class="form-checkbox h-5 w-5 text-indigo-600">
+            <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' ' + ${teacher.subject} + ' ' + ${teacher.age} + ' ' + ${teacher.stage}" class="text-gray-700"></span>
+          </li>
+        </th:block>
+      </ul>
+      <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить выбранных учителей</button>
+    </form>
 
-    <div class="pagination">
-      <th:block th:if="${currentPage > 0}">
-        <a th:href="@{/teachers(page=${currentPage - 1}, size=${pageSize})}" class="pagination-button">Предыдущая</a>
-      </th:block>
+    <div th:if="${totalPages > 1}">
+      <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}" class="text-gray-700"></span>
+      <br><br>
 
-      <th:block th:if="${currentPage < totalPages - 1}">
-        <a th:href="@{/teachers(page=${currentPage + 1}, size=${pageSize})}" class="pagination-button">Следующая</a>
-      </th:block>
+      <div class="pagination flex justify-center space-x-4">
+        <th:block th:if="${currentPage > 0}">
+          <a th:href="@{/teachers(page=${currentPage - 1}, size=${pageSize})}" class="pagination-button py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Предыдущая</a>
+        </th:block>
+
+        <th:block th:if="${currentPage < totalPages - 1}">
+          <a th:href="@{/teachers(page=${currentPage + 1}, size=${pageSize})}" class="pagination-button py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Следующая</a>
+        </th:block>
+      </div>
+    </div>
+
+    <div class="mt-6 text-center">
+      <a href="/" class="text-indigo-600 hover:text-indigo-800">Вернуться на главную</a>
     </div>
   </div>
 </div>
-<a href="/">Вернуться на главную</a>
 </body>
 </html>

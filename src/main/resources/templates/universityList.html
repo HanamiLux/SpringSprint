@@ -3,71 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <title>Список университетов</title>
-  <link rel="stylesheet" href="/styles.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-<h1 style="text-align: center">Список университетов</h1>
+<body class="bg-gray-100 font-sans">
+<div class="min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Список университетов</h1>
 
-<h2>Создать университет</h2>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Создать университет</h2>
+    <form action="/universities/addOrUpdate" method="post" th:object="${university}" class="mb-6">
+      <input type="text" th:field="*{name}" placeholder="Название университета" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Добавить университет</button>
+    </form>
 
-<form action="/universities/addOrUpdate" method="post" th:object="${university}">
-  <input type="text" th:field="*{name}" placeholder="Название университета" required>
-  <button type="submit">Добавить университет</button>
-</form>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Все университеты:</h2>
+    <ul class="space-y-4">
+      <th:block th:each="university : ${universities}">
+        <li class="flex items-center space-x-4">
+          <span th:text="${university.name}" class="text-gray-700"></span>
+          <form action="/universities/addOrUpdate" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${university.id}"/>
+            <input type="text" name="name" placeholder="Название университета" th:value="${university.name}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+            <button type="submit" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Обновить</button>
+          </form>
+          <form action="/universities/delete" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${university.id}"/>
+            <button type="submit" name="action" value="logical" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить логически</button>
+          </form>
+          <form action="/universities/delete" method="post" style="display:inline;">
+            <input type="hidden" name="id" th:value="${university.id}"/>
+            <button type="submit" name="action" value="physical" class="ml-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить физически</button>
+          </form>
+        </li>
+      </th:block>
+    </ul>
 
-<h2>Все университеты:</h2>
-
-<ul>
-  <th:block th:each="university : ${universities}">
-    <li>
-      <span th:text="${university.name}"></span>
-      <form action="/universities/addOrUpdate" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${university.id}"/>
-        <input type="text" name="name" placeholder="Название университета" th:value="${university.name}" required/>
-        <button type="submit">Обновить</button>
-      </form>
-      <form action="/universities/delete" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${university.id}"/>
-        <button type="submit" name="action" value="logical">Удалить логически</button>
-      </form>
-      <form action="/universities/delete" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${university.id}"/>
-        <button type="submit" name="action" value="physical">Удалить физически</button>
-      </form>
-    </li>
-  </th:block>
-</ul>
-
-<br><br>
-<h2>Удаление университетов</h2>
-<form action="/universities/deleteMultiple" method="post">
-  <ul>
-    <th:block th:each="university : ${universities}">
-      <li>
-        <input type="checkbox" name="universityIds" th:value="${university.id}">
-        <span th:text="${university.name}"></span>
-      </li>
-    </th:block>
-  </ul>
-  <button type="submit">Удалить выбранные университеты</button>
-</form>
-
-<div>
-  <div th:if="${totalPages > 1}">
-    <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
     <br><br>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Удаление университетов</h2>
+    <form action="/universities/deleteMultiple" method="post" class="mb-6">
+      <ul class="space-y-2">
+        <th:block th:each="university : ${universities}">
+          <li class="flex items-center space-x-2">
+            <input type="checkbox" name="universityIds" th:value="${university.id}" class="form-checkbox h-5 w-5 text-indigo-600">
+            <span th:text="${university.name}" class="text-gray-700"></span>
+          </li>
+        </th:block>
+      </ul>
+      <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить выбранные университеты</button>
+    </form>
 
-    <div class="pagination">
-      <th:block th:if="${currentPage > 0}">
-        <a th:href="@{/universities(page=${currentPage - 1}, size=${pageSize})}" class="pagination-button">Предыдущая</a>
-      </th:block>
+    <div th:if="${totalPages > 1}">
+      <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}" class="text-gray-700"></span>
+      <br><br>
 
-      <th:block th:if="${currentPage < totalPages - 1}">
-        <a th:href="@{/universities(page=${currentPage + 1}, size=${pageSize})}" class="pagination-button">Следующая</a>
-      </th:block>
+      <div class="pagination flex justify-center space-x-4">
+        <th:block th:if="${currentPage > 0}">
+          <a th:href="@{/universities(page=${currentPage - 1}, size=${pageSize})}" class="pagination-button py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Предыдущая</a>
+        </th:block>
+
+        <th:block th:if="${currentPage < totalPages - 1}">
+          <a th:href="@{/universities(page=${currentPage + 1}, size=${pageSize})}" class="pagination-button py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Следующая</a>
+        </th:block>
+      </div>
+    </div>
+
+    <div class="mt-6 text-center">
+      <a href="/" class="text-indigo-600 hover:text-indigo-800">Вернуться на главную</a>
     </div>
   </div>
 </div>
-<a href="/">Вернуться на главную</a>
 </body>
 </html>
