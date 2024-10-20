@@ -16,15 +16,17 @@ class UserService @Autowired constructor(
     fun registerUser(user: UserModel) {
         try {
             // Валидация данных
-            if (user.username!!.isEmpty() || user.password!!.isEmpty()) {
+            if (user.username.isEmpty() || user.password.isEmpty()) {
                 throw Exception("Invalid user data")
+            }
+            if(user.password.length < 4) {
+                throw Exception("Invalid password")
             }
             user.isActive = true
             user.password = passwordEncoder.encode(user.password)
             user.roles = Collections.singleton(RoleEnum.USER)
             userRepository.save(user)
         } catch (e: Exception) {
-            // Обработка исключений
             throw Exception("Error registering user: ${e.message}")
         }
     }
