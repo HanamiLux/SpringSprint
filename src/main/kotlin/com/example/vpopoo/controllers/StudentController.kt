@@ -34,6 +34,7 @@ class StudentController {
     ): String {
         val pageable = PageRequest.of(page, size)
         val studentsPage = studentService?.findPaginatedStudents(pageable)
+        val filteredStudents = studentsPage?.filter { !it!!.isDeleted }
 
         val students = studentsPage?.content
         val availableUniversities = universityService?.findAllUniversities()
@@ -41,7 +42,8 @@ class StudentController {
 
         model.addAttribute("availableUniversities", availableUniversities)
         model.addAttribute("availableGrades", availableGrades)
-        model.addAttribute("students", students)
+        model.addAttribute("allStudents", students)
+        model.addAttribute("students", filteredStudents)
         model.addAttribute("currentPage", studentsPage?.number)
         model.addAttribute("totalPages", studentsPage?.totalPages)
         model.addAttribute("pageSize", size)

@@ -28,6 +28,6 @@ open class StudentModel @JvmOverloads constructor(
     @JoinColumn(name = "university_id")
     var university: University? = null,
 
-    @OneToOne(mappedBy = "student", cascade = [CascadeType.ALL])
+    @OneToOne(mappedBy = "student", cascade = [CascadeType.MERGE])
     var grade: GradeModel? = null
 )

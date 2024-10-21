@@ -74,7 +74,7 @@
   <th:block th:each="student : ${students}">
     <li>
       <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName} +
-' ' + ' ' + ${student.university.name} + ' ' + ${student.grade.gradeContent}"></span>
+' ' + ' ' + ${student.university.name} + ' ' + ${student.grade?.gradeContent}"></span>
       <form action="/students/addOrUpdate" method="post" style="display:inline;">
         <input type="hidden" name="id" th:value="${student.id}"/>
         <select name="university.id" required>
@@ -87,7 +87,7 @@
         <select name="grade.id" required>
           <option value="">Выберите оценку</option>
           <th:block th:each="grade : ${availableGrades}">
-            <option th:value="${grade.id}" th:selected="${student.grade.id == grade.id}" th:text="${grade.gradeContent}"></option>
+            <option th:value="${grade.id}" th:selected="${student.grade == grade.id}" th:text="${grade.gradeContent}"></option>
           </th:block>
         </select>
 
@@ -115,7 +115,7 @@
 <h2>Удаление студентов</h2>
 <form action="/students/deleteMultiple" method="post">
   <ul>
-    <th:block th:each="student : ${students}">
+    <th:block th:each="student : ${allStudents}">
       <li>
         <input type="checkbox" name="studentIds" th:value="${student.id}">
         <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName}"></span>
