@@ -3,10 +3,12 @@ package com.example.vpopoo.controllers
 import com.example.vpopoo.model.StudentModel
 import com.example.vpopoo.service.StudentService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.*
-import org.springframework.data.domain.PageRequest
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 //Основная бизнес-логика нашего проекта
 @Controller
@@ -32,6 +34,7 @@ class StudentController {
         model.addAttribute("availableCourses", availableCourses)
         model.addAttribute("availableGrades", availableGrades)
         model.addAttribute("students", studentsPage?.content)
+        model.addAttribute("allStudents", studentsPage?.content?.filter { it?.isDeleted != true })
         model.addAttribute("currentPage", studentsPage?.number)
         model.addAttribute("totalPages", studentsPage?.totalPages)
         model.addAttribute("pageSize", size)

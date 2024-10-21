@@ -44,7 +44,7 @@
 </form>
 
 <ul>
-  <th:block th:each="teacher : ${teachers}">
+  <th:block th:each="teacher : ${allTeachers}">
     <li>
       <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' ' + ${teacher.subject} + ' ' + ${teacher.age} +
 ' ' + ${teacher.stage}"></span>

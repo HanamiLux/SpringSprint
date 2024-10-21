@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 //Основная бизнес-логика нашего проекта
 @Controller
@@ -27,7 +29,8 @@ class TeacherController {
 
         val teachers = teachersPage?.content
         model.addAttribute("availableSubjects", availableSubjects)
-        model.addAttribute("teachers", teachers)
+        model.addAttribute("teachers", teachersPage?.content)
+        model.addAttribute("allTeachers", teachers?.filter { it?.isDeleted != true })
         model.addAttribute("currentPage", teachersPage?.number)
         model.addAttribute("totalPages", teachersPage?.totalPages)
         model.addAttribute("pageSize", size)

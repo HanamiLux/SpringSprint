@@ -68,7 +68,7 @@
 </form>
 
 <ul>
-  <th:block th:each="student : ${students}">
+  <th:block th:each="student : ${allStudents}">
     <li>
       <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName} +
 ' ' + ${student.averageGrade} + ' ' + ${student.course} + ' ' + ${student.university}"></span>
