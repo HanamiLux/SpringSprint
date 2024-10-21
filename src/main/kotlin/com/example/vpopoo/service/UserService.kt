@@ -40,4 +40,6 @@ class UserService @Autowired constructor(
             throw Exception("Error getting user by name: ${e.message}")
         }
     }
+
+
 }

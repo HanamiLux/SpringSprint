@@ -47,14 +47,13 @@ class SecurityConfig @Autowired constructor(
         }).passwordEncoder(passwordEncoder)
     }
 
-
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.authorizeHttpRequests { authorize ->
             authorize
                 .requestMatchers("/register", "/login").permitAll()
-                .requestMatchers( "/teachers").hasRole("ADMIN")
-                .requestMatchers( "/students").hasRole("MANAGER")
+                .requestMatchers("/teachers").hasRole("ADMIN")
+                .requestMatchers("/students").hasRole("MANAGER")
                 .anyRequest().authenticated()
         }
             .formLogin { form ->
@@ -83,7 +82,6 @@ class SecurityConfig @Autowired constructor(
             .csrf { csrf -> csrf.disable() }
             .cors { cors -> cors.disable() }
 
-
         return http.build()
     }
 
@@ -93,6 +91,32 @@ class SecurityConfig @Autowired constructor(
             web.ignoring().requestMatchers("/h2-console/**")
         }
     }
+
+//    @Bean
+//    fun sessionExpirationFilter(): Filter {
+//        return SessionExpirationFilter(userRepository)
+//    }
+//
+//    class SessionExpirationFilter(private val userRepository: UserRepository) : OncePerRequestFilter() {
+//        override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+//            val authentication = SecurityContextHolder.getContext().authentication
+//            if (authentication != null && authentication.isAuthenticated) {
+//                val userDetails = authentication.principal as UserDetails
+//
+//                val user = userRepository.findByUsername(userDetails.username) ?: return
+//                if (user.sessionExpiry?.before(Date()) == true && request.requestURI != "/login") {
+//                    SecurityContextHolder.clearContext()
+//                    response.sendRedirect("/login")
+//                    return
+//                } else {
+//                    // Обновляем время истечения сессии (можно настроить интервал)
+//                    user.sessionExpiry = Date(System.currentTimeMillis() + 15 * 60 * 1000)
+//                    userRepository.save(user)
+//                }
+//            }
+//            filterChain.doFilter(request, response)
+//        }
+//    }
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {

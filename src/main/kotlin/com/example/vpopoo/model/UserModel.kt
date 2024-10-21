@@ -3,6 +3,7 @@ package com.example.vpopoo.model
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import java.util.*
 
 @Entity
 data class UserModel(
@@ -14,6 +15,8 @@ data class UserModel(
     @Size(min = 4, message = "Password must be at least 4 characters long")
     var password: String = "",
     var isActive: Boolean = true,
+    @Temporal(TemporalType.TIMESTAMP)
+    var sessionExpiry: Date? = null,
 
     @ElementCollection(targetClass = RoleEnum::class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = [JoinColumn(name = "user_id")])
