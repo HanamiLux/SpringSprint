@@ -24,7 +24,7 @@ class UserService @Autowired constructor(
             }
             user.isActive = true
             user.password = passwordEncoder.encode(user.password)
-            user.roles = Collections.singleton(RoleEnum.USER)
+            user.roles = Collections.singleton(RoleEnum.MANAGER)
             userRepository.save(user)
         } catch (e: Exception) {
             throw Exception("Error registering user: ${e.message}")
