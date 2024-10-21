@@ -53,6 +53,7 @@ class SecurityConfig @Autowired constructor(
         http.authorizeHttpRequests { authorize ->
             authorize
                 .requestMatchers("/register", "/login").permitAll()
+                .requestMatchers("/api/**").permitAll()
                 .requestMatchers( "/teachers").hasRole("ADMIN")
                 .requestMatchers( "/students").hasRole("MANAGER")
                 .anyRequest().authenticated()
