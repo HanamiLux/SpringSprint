@@ -1,13 +1,13 @@
 package com.example.vpopoo.controllers
 
 import com.example.vpopoo.model.StudentModel
+import com.example.vpopoo.service.CourseService
 import com.example.vpopoo.service.GradeService
 import com.example.vpopoo.service.StudentService
 import com.example.vpopoo.service.UniversityService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 class StudentController {
+    @Autowired
+    private lateinit var courseService: CourseService
+
     @Autowired
     private val studentService: StudentService? = null
 
@@ -39,9 +42,10 @@ class StudentController {
         val students = studentsPage?.content
         val availableUniversities = universityService?.findAllUniversities()
         val availableGrades = gradeService?.findAllGradesList()
-
+        val availableCourses = courseService.findAllCoursesList()
         model.addAttribute("availableUniversities", availableUniversities)
         model.addAttribute("availableGrades", availableGrades)
+        model.addAttribute("availableCourses", availableCourses)
         model.addAttribute("students", students)
         model.addAttribute("currentPage", studentsPage?.number)
         model.addAttribute("totalPages", studentsPage?.totalPages)
@@ -62,13 +66,14 @@ class StudentController {
         // Фильтрация по университету и оценке
         val filteredStudents = students?.filter { student ->
             (university.isNullOrEmpty() || student?.university?.name == university) &&
-                    (grade.isNullOrEmpty() || student?.grade?.gradeContent == grade)
+                    (grade.isNullOrEmpty() || student?.gradeField?.gradeContent == grade)
         }
 
         val availableUniversities = universityService?.findAllUniversities()
         val availableGrades = gradeService?.findAllGradesList()
-
+        val availableCourses = courseService.findAllCoursesList()
         model.addAttribute("students", filteredStudents)
+        model.addAttribute("availableCourses", availableCourses)
         model.addAttribute("availableUniversities", availableUniversities)
         model.addAttribute("availableGrades", availableGrades)
         model.addAttribute("student", StudentModel()) // Добавьте эту строку
@@ -86,11 +91,29 @@ class StudentController {
             val students = studentService?.findAllStudent()
             val availableUniversities = universityService?.findAllUniversities()
             val availableGrades = gradeService?.findAllGradesList()
+            val availableCourses = courseService.findAllCoursesList()
             model.addAttribute("students", students)
             model.addAttribute("availableUniversities", availableUniversities)
+            model.addAttribute("availableCourses", availableCourses)
             model.addAttribute("availableGrades", availableGrades)
             model.addAttribute("student", newStudent)
             return "studentList"
+        }
+        if(newStudent.id != null) {
+            val existingStudent = studentService?.findStudentById(newStudent.id!!)
+            existingStudent?.gradeField?.student = null
+            val grade = gradeService?.findGradeById(newStudent.gradeField?.id!!)
+            if (grade != null) {
+                newStudent.gradeField = grade
+                grade.student = newStudent
+            }
+        }
+        else {
+            val grade = gradeService?.findGradeById(newStudent.gradeField?.id!!)
+            if (grade != null) {
+                newStudent.gradeField = grade
+                grade.student = newStudent
+            }
         }
         studentService?.addStudent(newStudent)
         return "redirect:/students"
@@ -98,6 +121,9 @@ class StudentController {
 
     @PostMapping("/students/delete")
     fun deleteStudent(@RequestParam id: Int, @RequestParam action: String): String {
+        val student = studentService?.findStudentById(id)
+        student?.gradeField?.student = null
+        gradeService?.addGrade(student?.gradeField!!)
         when (action) {
             "logical" -> {
                 studentService?.logicalDeleteStudent(id)
@@ -126,6 +152,11 @@ class StudentController {
     @PostMapping("/students/deleteMultiple")
     fun deleteMultipleStudents(@RequestParam studentIds: List<Int>?): String {
         if (studentIds.isNullOrEmpty()) return "redirect:/students"
+        for (studentId in studentIds) {
+            val student = studentService?.findStudentById(studentId)
+            student?.gradeField?.student = null
+            gradeService?.addGrade(student?.gradeField!!)
+        }
         studentService?.deleteMultipleStudents(studentIds)
         return "redirect:/students"
     }

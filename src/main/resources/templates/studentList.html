@@ -18,21 +18,25 @@
           <option th:value="${uni.id}" th:text="${uni.name}"></option>
         </th:block>
       </select>
-
-      <select th:field="*{grade.id}" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <select th:field="*{gradeField.id}" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
         <option value="">Выберите оценку</option>
         <th:block th:each="grade_el : ${availableGrades}">
-          <option th:value="${grade_el.id}" th:text="${grade_el.gradeContent}"></option>
+          <option th:value="${grade_el.id}" th:text="${grade_el.gradeContent}" th:selected="${student.gradeField?.id == grade_el.id}"></option>
         </th:block>
       </select>
-
+      <select th:field="*{course.id}" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="">Выберите оценку</option>
+        <th:block th:each="c : ${availableCourses}">
+          <option th:value="${c.id}" th:text="${c.name}" th:selected="${student.course?.id == c.id}"></option>
+        </th:block>
+      </select>
       <input type="text" th:field="*{name}" placeholder="Имя" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
       <input type="text" th:field="*{lastName}" placeholder="Фамилия" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
       <input type="text" th:field="*{firstName}" placeholder="Отчество" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-      <input type="text" th:field="*{middleName}" placeholder="Дополнительное имя" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-
+      <input type="text" th:field="*{middleName}" placeholder="Дополнительное имя" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
       <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Добавить студента</button>
     </form>
+
 
     <h2 class="text-xl font-semibold text-gray-700 mb-4">Все студенты:</h2>
     <div class="flex items-center space-x-4 mb-4">
@@ -71,7 +75,7 @@
     <ul class="space-y-4">
       <th:block th:each="student : ${students}">
         <li class="flex items-center space-x-4">
-          <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName} + ' ' + ${student.university.name} + ' ' + ${student.grade.gradeContent}" class="text-gray-700"></span>
+          <span th:text="${student.name} + ' ' + ${student.lastName} + ' ' + ${student.firstName} + ' ' + ${student.middleName} + ' ' + ${student.university.name} + ' ' + ${student.gradeField?.gradeContent} + ' ' + ${student.course?.name}" class="text-gray-700"></span>
           <form action="/students/addOrUpdate" method="post" style="display:inline;">
             <input type="hidden" name="id" th:value="${student.id}"/>
             <select name="university.id" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
@@ -81,10 +85,17 @@
               </th:block>
             </select>
 
-            <select name="grade.id" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+            <select th:field="${student.gradeField.id}" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
               <option value="">Выберите оценку</option>
-              <th:block th:each="grade : ${availableGrades}">
-                <option th:value="${grade.id}" th:selected="${student.grade.id == grade.id}" th:text="${grade.gradeContent}"></option>
+              <th:block th:each="grade_el : ${availableGrades}">
+                <option th:value="${grade_el.id}" th:text="${grade_el.gradeContent}" th:selected="${student.gradeField?.id == grade_el.id}"></option>
+              </th:block>
+            </select>
+
+            <select name="course.id" required class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+              <option value="">Выберите курс</option>
+              <th:block th:each="c : ${availableCourses}">
+                <option th:value="${c.id}" th:selected="${student.course?.id == c.id}" th:text="${c.name}"></option>
               </th:block>
             </select>
 

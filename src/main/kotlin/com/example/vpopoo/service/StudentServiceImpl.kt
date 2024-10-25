@@ -22,6 +22,7 @@ class StudentServiceImpl @Autowired constructor(private val studentRepository: S
     }
 
     override fun addStudent(student: StudentModel): StudentModel? {
+        
         return studentRepository.save(student)
     }
 
