@@ -1,54 +1,53 @@
-package com.example.vpopoo.controllers
+package api.vpopooapi.controllers
 
-import com.example.vpopoo.model.UserModel
-import com.example.vpopoo.service.UserService
-import jakarta.validation.Valid
+import api.vpopooapi.model.UserModel
+import api.vpopooapi.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
+import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 
-@Controller
+@RestController
+@RequestMapping("/api/register")
 class RegistrationController @Autowired constructor(
     private val userService: UserService
 ) {
-    @GetMapping("/register")
-    fun showRegistrationForm(@RequestParam(value = "error", required = false) error: String?, model: Model): String {
-        model.addAttribute("user", UserModel())
+
+    @GetMapping
+    fun showRegistrationForm(@RequestParam(value = "error", required = false) error: String?): ResponseEntity<Map<String, Any>> {
+        val response = mutableMapOf<String, Any>()
+        response["user"] = UserModel()
         if (error != null) {
-            when (error) {
-                "invalid_fields" -> model.addAttribute("message", "Есть неправильно заполненные поля")
-                "validation_error" -> model.addAttribute("message", "Слишком короткий пароль (< 4)")
-                "empty_fields_error" -> model.addAttribute("message", "Есть пустые поля")
-                "user_exists" -> model.addAttribute("message", "Пользователь с таким логином уже существует")
-                "registration_error" -> model.addAttribute("message", "Ошибка при сохранении данных")
-                else -> model.addAttribute("message", "Неизвестная ошибка")
+            response["message"] = when (error) {
+                "invalid_fields" -> "Есть неправильно заполненные поля"
+                "validation_error" -> "Слишком короткий пароль (< 4)"
+                "empty_fields_error" -> "Есть пустые поля"
+                "user_exists" -> "Пользователь с таким логином уже существует"
+                "registration_error" -> "Ошибка при сохранении данных"
+                else -> "Неизвестная ошибка"
             }
         }
-        return "register"
+        return ResponseEntity.ok(response)
     }
 
-    @PostMapping("/register")
-    fun registerUser(@Valid @ModelAttribute user: UserModel, bindingResult: BindingResult, model: Model): String {
-        try {
-            if(bindingResult.hasErrors()) {
-                return "redirect:/register?error=invalid_fields"
+    @PostMapping
+    fun registerUser(@RequestBody user: UserModel, bindingResult: BindingResult): ResponseEntity<Any> {
+        return try {
+            if (bindingResult.hasErrors()) {
+                ResponseEntity.badRequest().body("invalid_fields")
+            } else if (userService.getUserByName(user.username) != null) {
+                ResponseEntity.badRequest().body("user_exists")
+            } else {
+                userService.registerUser(user)
+                ResponseEntity.ok(user)
             }
-            if (userService.getUserByName(user.username) != null) {
-                return "redirect:/register?error=user_exists"
-            }
-            userService.registerUser(user)
-            return "redirect:/login"
         } catch (e: Exception) {
-            if(e.message!!.contains("Invalid user data"))
-                return "redirect:/register?error=empty_fields_error"
-            if(e.message!!.contains("Invalid password"))
-                return "redirect:/register?error=validation_error"
-            return "redirect:/register?error=registration_error"
+            val errorMessage = when {
+                e.message!!.contains("Invalid user data") -> "empty_fields_error"
+                e.message!!.contains("Invalid password") -> "validation_error"
+                else -> "registration_error"
+            }
+            ResponseEntity.badRequest().body(errorMessage)
         }
     }
 }

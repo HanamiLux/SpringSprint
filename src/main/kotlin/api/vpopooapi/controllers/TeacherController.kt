@@ -1,118 +1,50 @@
-package com.example.vpopoo.controllers
+package api.vpopooapi.controllers
 
-import com.example.vpopoo.model.TeacherModel
-import com.example.vpopoo.service.SubjectService
-import com.example.vpopoo.service.TeacherService
-import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
+import api.vpopooapi.model.TeacherModel
+import api.vpopooapi.service.TeacherService
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
-import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
-@Controller
-class TeacherController {
-    @Autowired
-    private val teacherService: TeacherService? = null
-    @Autowired
-    private val subjectService: SubjectService? = null
-    @GetMapping("/teachers")
+@RestController
+@RequestMapping("/api/teachers")
+class TeacherController(private val teacherService: TeacherService) {
+
+    @GetMapping
     fun getAllTeachers(
-        model: Model,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
-    ): String {
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<List<TeacherModel?>> {
         val pageable = PageRequest.of(page, size)
-        val teachersPage = teacherService?.findPaginatedTeachers(pageable)
-        val availableSubjects = subjectService?.findAllSubjects()
-
-        val teachers = teachersPage?.content
-        model.addAttribute("availableSubjects", availableSubjects)
-        model.addAttribute("teachers", teachers)
-        model.addAttribute("currentPage", teachersPage?.number)
-        model.addAttribute("totalPages", teachersPage?.totalPages)
-        model.addAttribute("pageSize", size)
-        model.addAttribute("teacher", TeacherModel())
-
-        return "teacherList"
+        val teachers = teacherService.findPaginatedTeachers(pageable).content
+        return ResponseEntity.ok(teachers)
     }
 
-    @GetMapping("/teachers/filter")
-    fun filterTeachers(
-        @RequestParam(required = false) subject: String?,
-        @RequestParam(required = false) age: Int?,
-        @RequestParam(required = false) stage: Int?,
-        model: Model
-    ): String {
-        val teachers = teacherService?.findAllTeachers()
-
-        // Фильтрация учителей по предмету, возрасту и стажу
-        val filteredTeachers = teachers?.filter { teacher ->
-            (subject.isNullOrEmpty() || teacher?.subject == subject) &&
-                    (age == null || (teacher?.age ?: 0) > age) &&
-                    (stage == null || (teacher?.stage ?: 0) > stage)
-        }
-
-        val availableSubjects = subjectService?.findAllSubjects()
-
-        model.addAttribute("availableSubjects", availableSubjects)
-        model.addAttribute("teachers", filteredTeachers)
-        model.addAttribute("teacher", TeacherModel()) // Добавьте эту строку
-
-        return "teacherList"
+    @GetMapping("/all")
+    fun getAllTeachersList(): ResponseEntity<List<TeacherModel?>> {
+        return ResponseEntity.ok(teacherService.findAllTeachers())
     }
 
-    @PostMapping("/teachers/addOrUpdate")
-    fun addOrUpdateTeacher(
-        @Valid @ModelAttribute newTeacher: TeacherModel,
-        bindingResult: BindingResult,
-        model: Model
-    ): String {
-        if (bindingResult.hasErrors()) {
-            val teachers = teacherService?.findAllTeachers()
-            val availableSubjects = subjectService?.findAllSubjects()
-            model.addAttribute("availableSubjects", availableSubjects)
-            model.addAttribute("teachers", teachers)
-            model.addAttribute("teacher", newTeacher) // Добавьте эту строку
-            return "teacherList"
-        }
-        teacherService?.addTeacher(newTeacher)
-        return "redirect:/teachers"
+    @PostMapping
+    fun addOrUpdateTeacher(@RequestBody teacher: TeacherModel): ResponseEntity<TeacherModel> {
+        val updatedTeacher = teacherService.addTeacher(teacher)
+        return ResponseEntity.ok(updatedTeacher)
     }
 
-    @PostMapping("/teachers/delete")
-    fun deleteTeacher(@RequestParam id: Int, @RequestParam action: String): String {
+    @DeleteMapping("/{id}")
+    fun deleteTeacher(@PathVariable id: Int, @RequestParam action: String): ResponseEntity<Void> {
         when (action) {
-            "logical" -> {
-                teacherService?.logicalDeleteTeacher(id)
-            }
-            "physical" -> {
-                teacherService?.deleteTeacher(id)
-            }
+            "logical" -> teacherService.logicalDeleteTeacher(id)
+            "physical" -> teacherService.deleteTeacher(id)
         }
-        return "redirect:/teachers"
+        return ResponseEntity.noContent().build()
     }
 
-    @GetMapping("/teachers/find")
-    fun findTeacherByName(
-        model: Model,
-        @RequestParam name: String?,
-        @RequestParam lastName: String?
-    ): String {
-        val foundTeachers = teacherService?.findTeacherByName(name, lastName)
-        model.addAttribute("teachers", foundTeachers)
-        model.addAttribute("teacher", TeacherModel()) // Добавьте эту строку
-        return "teacherList"
-    }
-
-    @PostMapping("/teachers/deleteMultiple")
-    fun deleteMultipleTeachers(@RequestParam teacherIds: List<Int>?): String {
-        if (teacherIds.isNullOrEmpty()) return "redirect:/teachers"
-        teacherService?.deleteMultipleTeachers(teacherIds)
-        return "redirect:/teachers"
+    @PostMapping("/deleteMultiple")
+    fun deleteMultipleTeachers(@RequestBody teacherIds: List<Int>): ResponseEntity<Void> {
+        if (teacherIds.isNotEmpty()) {
+            teacherService.deleteMultipleTeachers(teacherIds)
+        }
+        return ResponseEntity.noContent().build()
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class StudentServiceImpl @Autowired constructor(private val studentRepository: StudentRepository) : StudentService {
-    override fun findAllStudent(): List<StudentModel?> {
+    override fun findAllStudents(): List<StudentModel?> {
         return studentRepository.findAll()
     }
 
@@ -42,6 +42,6 @@ class StudentServiceImpl @Autowired constructor(private val studentRepository: S
     }
 
     override fun findPaginatedStudents(pageable: Pageable): Page<StudentModel?> {
-        return studentRepository.findAll(pageable)
+        return studentRepository.findAllByLogic(pageable)
     }
 }

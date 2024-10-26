@@ -24,7 +24,7 @@ class UserService @Autowired constructor(
             }
             user.isActive = true
             user.password = BCrypt.hashpw(user.password, BCrypt.gensalt(8))
-            user.roles = Collections.singleton(RoleEnum.MANAGER)
+            user.roles = Collections.singleton(RoleEnum.USER)
             userRepository.save(user)
             return user
         } catch (e: Exception) {

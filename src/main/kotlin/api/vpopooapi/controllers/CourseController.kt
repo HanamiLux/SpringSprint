@@ -18,6 +18,11 @@ class CourseController(private val courseService: CourseService) {
         return ResponseEntity.ok(courses)
     }
 
+    @GetMapping("/all")
+    fun getAllCoursesList(): ResponseEntity<List<Course>> {
+        return ResponseEntity.ok(courseService.findAllCoursesList())
+    }
+
     @PostMapping
     fun addOrUpdateCourse(@RequestBody course: Course): ResponseEntity<Course> {
         val updatedCourse = courseService.addCourse(course)

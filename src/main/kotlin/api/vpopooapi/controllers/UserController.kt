@@ -28,6 +28,16 @@ class UserController @Autowired constructor(
         }
     }
 
+    @GetMapping("/name")
+    fun getUserByName(@RequestParam username: String): ResponseEntity<UserModel> {
+        val user = userService.getUserByName(username)
+        return if (user != null) {
+            ResponseEntity.ok(user)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
     @PostMapping
     fun createUser(@RequestBody user: UserModel): Any {
         try{

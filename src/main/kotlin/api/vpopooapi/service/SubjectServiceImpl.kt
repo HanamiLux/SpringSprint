@@ -1,5 +1,6 @@
 package api.vpopooapi.service
 
+import api.vpopooapi.model.StudentModel
 import api.vpopooapi.model.Subject
 import api.vpopooapi.repository.SubjectRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,7 +19,7 @@ class SubjectServiceImpl @Autowired constructor(private val subjectRepository: S
     }
 
     override fun findPaginatedSubjects(pageable: Pageable): Page<Subject?> {
-        return subjectRepository.findAll(pageable)
+        return subjectRepository.findAllByLogic(pageable)
     }
 
     override fun findSubjectByName(name: String?): List<Subject> {

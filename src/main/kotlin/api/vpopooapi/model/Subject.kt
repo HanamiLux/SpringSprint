@@ -1,10 +1,11 @@
 package api.vpopooapi.model
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 
 @Entity
 @Table(name = "subjects")
-open class Subject @JvmOverloads constructor(
+class Subject @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,6 +14,7 @@ open class Subject @JvmOverloads constructor(
     var name: String? = null,
 
     @ManyToMany(mappedBy = "subjects")
+    @JsonManagedReference
     var teachers: MutableList<TeacherModel> = mutableListOf(),
 
     var isDeleted: Boolean = false

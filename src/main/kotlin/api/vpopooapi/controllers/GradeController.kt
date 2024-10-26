@@ -1,73 +1,60 @@
 package api.vpopooapi.controllers
 
-import com.example.vpopoo.model.GradeModel
-import com.example.vpopoo.service.GradeService
-import jakarta.validation.Valid
+import api.vpopooapi.model.GradeModel
+import api.vpopooapi.service.GradeService
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
-import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
-@Controller
+@RestController
+@RequestMapping("/api/grades")
 class GradeController(private val gradeService: GradeService) {
 
-    @GetMapping("/grades")
+    @GetMapping
     fun getAllGrades(
-        model: Model,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
-    ): String {
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<List<GradeModel>> {
         val pageable = PageRequest.of(page, size)
-        val gradesPage = gradeService.findAllGrades(pageable)
-        val allGradeModels = gradeService.findAllGradesList()
-        val gradeModels = gradesPage.content
-        model.addAttribute("gradeModels", gradeModels)
-        model.addAttribute("allGradeModels", allGradeModels)
-        model.addAttribute("currentPage", gradesPage.number)
-        model.addAttribute("totalPages", gradesPage.totalPages)
-        model.addAttribute("pageSize", size)
-        model.addAttribute("gradeModel", GradeModel())
-
-        return "gradeList"
+        val grades = gradeService.findAllGrades(pageable).content
+        return ResponseEntity.ok(grades)
     }
 
-    @PostMapping("/grades/addOrUpdate")
-    fun addOrUpdateGrade(
-        @Valid @ModelAttribute newGrade: GradeModel,
-        bindingResult: BindingResult,
-        model: Model
-    ): String {
-        if (bindingResult.hasErrors()) {
-            val gradeModels = gradeService.findAllGradesList()
-            model.addAttribute("gradeModels", gradeModels)
-            model.addAttribute("gradeModel", newGrade)
-            return "gradeList"
+    @GetMapping("/all")
+    fun getAllGradesList(): ResponseEntity<List<GradeModel?>> {
+        return ResponseEntity.ok(gradeService.findAllGradesList())
+    }
+
+    @PostMapping
+    fun addOrUpdateGrade(@RequestBody newGrade: GradeModel): ResponseEntity<GradeModel> {
+        val updatedGrade = gradeService.addGrade(newGrade)
+        return ResponseEntity.ok(updatedGrade)
+    }
+
+    @GetMapping("/{id}")
+    fun getGradeById(@PathVariable id: Int): ResponseEntity<GradeModel> {
+        val gradeModel = gradeService.findGradeById(id)
+        return if (gradeModel != null) {
+            ResponseEntity.ok(gradeModel)
+        } else {
+            ResponseEntity.notFound().build()
         }
-        gradeService.addGrade(newGrade)
-        return "redirect:/grades"
     }
 
-    @PostMapping("/grades/delete")
-    fun deleteGrade(@RequestParam id: Int, @RequestParam action: String): String {
+    @DeleteMapping("/{id}")
+    fun deleteGrade(@PathVariable id: Int, @RequestParam action: String): ResponseEntity<Void> {
         when (action) {
-            "logical" -> {
-                gradeService.logicalDeleteGrade(id)
-            }
-            "physical" -> {
-                gradeService.deleteGrade(id)
-            }
+            "logical" -> gradeService.logicalDeleteGrade(id)
+            "physical" -> gradeService.deleteGrade(id)
         }
-        return "redirect:/grades"
+        return ResponseEntity.noContent().build()
     }
 
-    @PostMapping("/grades/deleteMultiple")
-    fun deleteMultipleGrades(@RequestParam gradeIds: List<Int>?): String {
-        if (gradeIds.isNullOrEmpty()) return "redirect:/grades"
-        gradeService.deleteMultipleGrades(gradeIds)
-        return "redirect:/grades"
+    @PostMapping("/deleteMultiple")
+    fun deleteMultipleGrades(@RequestBody gradeIds: List<Int>): ResponseEntity<Void> {
+        if (gradeIds.isNotEmpty()) {
+            gradeService.deleteMultipleGrades(gradeIds)
+        }
+        return ResponseEntity.noContent().build()
     }
 }

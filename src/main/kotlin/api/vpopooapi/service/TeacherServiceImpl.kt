@@ -46,6 +46,6 @@ class TeacherServiceImpl @Autowired constructor(private val teacherRepository: T
     }
 
     override fun findPaginatedTeachers(pageable: Pageable): Page<TeacherModel?> {
-        return teacherRepository.findAll(pageable)
+        return teacherRepository.findAllByLogic(pageable)
     }
 }

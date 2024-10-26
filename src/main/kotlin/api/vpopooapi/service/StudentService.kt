@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface StudentService {
-    fun findAllStudent(): List<StudentModel?>?
+    fun findAllStudents(): List<StudentModel?>?
     fun findStudentById(id: Int): StudentModel?
     fun findPaginatedStudents(pageable: Pageable): Page<StudentModel?>
     fun findStudentByName(name: String?, lastName: String?, firstName: String?, middleName: String?): List<StudentModel>

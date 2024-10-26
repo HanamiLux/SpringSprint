@@ -1,10 +1,11 @@
 package api.vpopooapi.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 
 @Entity
 @Table(name = "teachers")
-open class TeacherModel @JvmOverloads constructor(
+class TeacherModel @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +33,7 @@ open class TeacherModel @JvmOverloads constructor(
         joinColumns = [JoinColumn(name = "teacher_id")],
         inverseJoinColumns = [JoinColumn(name = "subject_id")]
     )
+    @JsonBackReference
     var subjects: MutableList<Subject> = mutableListOf(),
 
     )

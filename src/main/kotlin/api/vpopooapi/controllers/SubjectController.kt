@@ -1,75 +1,62 @@
-package com.example.vpopoo.controllers
+package api.vpopooapi.controllers
 
-import com.example.vpopoo.model.Subject
-import com.example.vpopoo.service.SubjectService
-import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
+
+import api.vpopooapi.model.StudentModel
+import api.vpopooapi.model.Subject
+import api.vpopooapi.service.SubjectService
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
-import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
-@Controller
-class SubjectController {
-    @Autowired
-    private val subjectService: SubjectService? = null
+@RestController
+@RequestMapping("/api/subjects")
+class SubjectController(private val subjectService: SubjectService) {
 
-    @GetMapping("/subjects")
+    @GetMapping
     fun getAllSubjects(
-        model: Model,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
-    ): String {
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<List<Subject?>> {
         val pageable = PageRequest.of(page, size)
-        val subjectsPage = subjectService?.findPaginatedSubjects(pageable)
-
-        val subjects = subjectsPage?.content
-        model.addAttribute("subjects", subjects)
-        model.addAttribute("currentPage", subjectsPage?.number)
-        model.addAttribute("totalPages", subjectsPage?.totalPages)
-        model.addAttribute("pageSize", size)
-        model.addAttribute("subject", Subject())
-
-        return "subjectList"
+        val subjects = subjectService.findPaginatedSubjects(pageable).content
+        return ResponseEntity.ok(subjects)
     }
 
-    @PostMapping("/subjects/addOrUpdate")
-    fun addOrUpdateSubject(
-        @Valid @ModelAttribute newSubject: Subject,
-        bindingResult: BindingResult,
-        model: Model
-    ): String {
-        if (bindingResult.hasErrors()) {
-            val subjects = subjectService?.findAllSubjects()
-            model.addAttribute("subjects", subjects)
-            model.addAttribute("subject", newSubject) // Добавьте эту строку
-            return "subjectList"
+    @GetMapping("/all")
+    fun getAllSubjectsList(): ResponseEntity<List<Subject?>> {
+        return ResponseEntity.ok(subjectService.findAllSubjects())
+    }
+
+    @PostMapping
+    fun addOrUpdateSubject(@RequestBody newSubject: Subject): ResponseEntity<Subject> {
+        val updatedSubject = subjectService.addSubject(newSubject)
+        return ResponseEntity.ok(updatedSubject)
+    }
+
+    @GetMapping("/{id}")
+    fun getStudentById(@PathVariable id: Int): ResponseEntity<Subject> {
+        val subject = subjectService.findSubjectById(id)
+        return if (subject != null) {
+            ResponseEntity.ok(subject)
+        } else {
+            ResponseEntity.notFound().build()
         }
-        subjectService?.addSubject(newSubject)
-        return "redirect:/subjects"
     }
 
-    @PostMapping("/subjects/delete")
-    fun deleteSubject(@RequestParam id: Int, @RequestParam action: String): String {
+    @DeleteMapping("/{id}")
+    fun deleteSubject(@PathVariable id: Int, @RequestParam action: String): ResponseEntity<Void> {
         when (action) {
-            "logical" -> {
-                subjectService?.logicalDeleteSubject(id)
-            }
-            "physical" -> {
-                subjectService?.deleteSubject(id)
-            }
+            "logical" -> subjectService.logicalDeleteSubject(id)
+            "physical" -> subjectService.deleteSubject(id)
         }
-        return "redirect:/subjects"
+        return ResponseEntity.noContent().build()
     }
 
-    @PostMapping("/subjects/deleteMultiple")
-    fun deleteMultipleSubjects(@RequestParam subjectIds: List<Int>?): String {
-        if (subjectIds.isNullOrEmpty()) return "redirect:/subjects"
-        subjectService?.deleteMultipleSubjects(subjectIds)
-        return "redirect:/subjects"
+    @PostMapping("/deleteMultiple")
+    fun deleteMultipleSubjects(@RequestBody subjectIds: List<Int>): ResponseEntity<Void> {
+        if (subjectIds.isNotEmpty()) {
+            subjectService.deleteMultipleSubjects(subjectIds)
+        }
+        return ResponseEntity.noContent().build()
     }
 }

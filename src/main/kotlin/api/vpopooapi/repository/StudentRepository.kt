@@ -2,6 +2,8 @@ package api.vpopooapi.repository
 
 import api.vpopooapi.model.StudentModel
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -23,6 +25,10 @@ interface StudentRepository : JpaRepository<StudentModel, Int> {
         @Param("firstName") firstName: String?,
         @Param("middleName") middleName: String?
     ): List<StudentModel>
+
+
+    @Query("SELECT s FROM StudentModel s WHERE s.isDeleted = false")
+    fun findAllByLogic(pageable: Pageable): Page<StudentModel?>
 
     @Modifying
     @Transactional

@@ -1,75 +1,50 @@
-package com.example.vpopoo.controllers
+package api.vpopooapi.controllers
 
-import com.example.vpopoo.model.University
-import com.example.vpopoo.service.UniversityService
-import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
+import api.vpopooapi.model.University
+import api.vpopooapi.service.UniversityService
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
-import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
-@Controller
-class UniversityController {
-    @Autowired
-    private val universityService: UniversityService? = null
+@RestController
+@RequestMapping("/api/universities")
+class UniversityController(private val universityService: UniversityService) {
 
-    @GetMapping("/universities")
+    @GetMapping
     fun getAllUniversities(
-        model: Model,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
-    ): String {
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<List<University?>> {
         val pageable = PageRequest.of(page, size)
-        val universitiesPage = universityService?.findPaginatedUniversities(pageable)
-
-        val universities = universitiesPage?.content
-        model.addAttribute("universities", universities)
-        model.addAttribute("currentPage", universitiesPage?.number)
-        model.addAttribute("totalPages", universitiesPage?.totalPages)
-        model.addAttribute("pageSize", size)
-        model.addAttribute("university", University())
-
-        return "universityList"
+        val universities = universityService.findPaginatedUniversities(pageable).content
+        return ResponseEntity.ok(universities)
     }
 
-    @PostMapping("/universities/addOrUpdate")
-    fun addOrUpdateUniversity(
-        @Valid @ModelAttribute newUniversity: University,
-        bindingResult: BindingResult,
-        model: Model
-    ): String {
-        if (bindingResult.hasErrors()) {
-            val universities = universityService?.findAllUniversities()
-            model.addAttribute("universities", universities)
-            model.addAttribute("university", newUniversity) // Добавьте эту строку
-            return "universityList"
-        }
-        universityService?.addUniversity(newUniversity)
-        return "redirect:/universities"
+    @GetMapping("/all")
+    fun getAllUniversitiesList(): ResponseEntity<List<University?>> {
+        return ResponseEntity.ok(universityService.findAllUniversities())
     }
 
-    @PostMapping("/universities/delete")
-    fun deleteUniversity(@RequestParam id: Int, @RequestParam action: String): String {
+    @PostMapping
+    fun addOrUpdateUniversity(@RequestBody newUniversity: University): ResponseEntity<University> {
+        val updatedUniversity = universityService.addUniversity(newUniversity)
+        return ResponseEntity.ok(updatedUniversity)
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteUniversity(@PathVariable id: Int, @RequestParam action: String): ResponseEntity<Void> {
         when (action) {
-            "logical" -> {
-                universityService?.logicalDeleteUniversity(id)
-            }
-            "physical" -> {
-                universityService?.deleteUniversity(id)
-            }
+            "logical" -> universityService.logicalDeleteUniversity(id)
+            "physical" -> universityService.deleteUniversity(id)
         }
-        return "redirect:/universities"
+        return ResponseEntity.noContent().build()
     }
 
-    @PostMapping("/universities/deleteMultiple")
-    fun deleteMultipleUniversities(@RequestParam universityIds: List<Int>?): String {
-        if (universityIds.isNullOrEmpty()) return "redirect:/universities"
-        universityService?.deleteMultipleUniversities(universityIds)
-        return "redirect:/universities"
+    @PostMapping("/deleteMultiple")
+    fun deleteMultipleUniversities(@RequestBody universityIds: List<Int>): ResponseEntity<Void> {
+        if (universityIds.isNotEmpty()) {
+            universityService.deleteMultipleUniversities(universityIds)
+        }
+        return ResponseEntity.noContent().build()
     }
 }

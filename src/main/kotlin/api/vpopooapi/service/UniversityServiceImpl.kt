@@ -19,7 +19,7 @@ class UniversityServiceImpl @Autowired constructor(private val universityReposit
     }
 
     override fun findPaginatedUniversities(pageable: Pageable): Page<University?> {
-        return universityRepository.findAll(pageable)
+        return universityRepository.findAllByLogic(pageable)
     }
 
 
