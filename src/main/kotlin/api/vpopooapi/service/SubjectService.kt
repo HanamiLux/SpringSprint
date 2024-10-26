@@ -14,4 +14,5 @@ interface SubjectService {
     fun deleteSubject(id: Int)
     fun deleteMultipleSubjects(subjectIds: List<Int>)
     fun logicalDeleteSubject(id: Int)
+    fun findSubjectsByIds(ids: List<Int>): List<Subject>?
 }

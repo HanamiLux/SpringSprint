@@ -43,4 +43,8 @@ class SubjectServiceImpl @Autowired constructor(private val subjectRepository: S
         subject.isDeleted = true
         subjectRepository.save(subject)
     }
+
+    override fun findSubjectsByIds(ids: List<Int>): List<Subject>? {
+        return subjectRepository.findAllById(ids)
+    }
 }

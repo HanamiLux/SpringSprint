@@ -27,6 +27,12 @@ class SubjectController(private val subjectService: SubjectService) {
         return ResponseEntity.ok(subjectService.findAllSubjects())
     }
 
+    @GetMapping("/byIds")
+    fun getSubjectsByIds(@RequestParam ids: List<Int>): ResponseEntity<List<Subject>> {
+        val subjects = subjectService.findSubjectsByIds(ids)
+        return ResponseEntity.ok(subjects)
+    }
+
     @PostMapping
     fun addOrUpdateSubject(@RequestBody newSubject: Subject): ResponseEntity<Subject> {
         val updatedSubject = subjectService.addSubject(newSubject)
