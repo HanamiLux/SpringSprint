@@ -13,6 +13,10 @@ class CourseApiService(private val apiClient: ApiClient) {
         return apiClient.getAll(apiUrl, page, size, object : ParameterizedTypeReference<List<Course>>() {})
     }
 
+    fun getAllCoursesList(): List<Course> {
+        return apiClient.getAll("$apiUrl/all", 0, Int.MAX_VALUE, object : ParameterizedTypeReference<List<Course>>() {})
+    }
+
     fun addOrUpdateCourse(course: Course): Course? {
         return apiClient.addOrUpdate(apiUrl, course, Course::class.java)
     }

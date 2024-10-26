@@ -1,39 +1,30 @@
 package com.example.vpopoo.controllers
 
 import com.example.vpopoo.model.Subject
-import com.example.vpopoo.service.SubjectService
+import com.example.vpopoo.service.SubjectApiService
 import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 
 @Controller
-class SubjectController {
-    @Autowired
-    private val subjectService: SubjectService? = null
+class SubjectController(private val subjectApiService: SubjectApiService) {
 
     @GetMapping("/subjects")
     fun getAllSubjects(
         model: Model,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(defaultValue = "10") size: Int
     ): String {
-        val pageable = PageRequest.of(page, size)
-        val subjectsPage = subjectService?.findPaginatedSubjects(pageable)
-
-        val subjects = subjectsPage?.content
+        val subjects = subjectApiService.getAllSubjects(page, size)
+        val allSubjects = subjectApiService.getAllSubjectsList()
         model.addAttribute("subjects", subjects)
-        model.addAttribute("currentPage", subjectsPage?.number)
-        model.addAttribute("totalPages", subjectsPage?.totalPages)
+        model.addAttribute("allSubjects", allSubjects)
+        model.addAttribute("currentPage", page)
+        model.addAttribute("totalPages", (subjects.size + size - 1) / size)
         model.addAttribute("pageSize", size)
         model.addAttribute("subject", Subject())
-
         return "subjectList"
     }
 
@@ -44,32 +35,26 @@ class SubjectController {
         model: Model
     ): String {
         if (bindingResult.hasErrors()) {
-            val subjects = subjectService?.findAllSubjects()
+            val subjects = subjectApiService.getAllSubjectsList()
             model.addAttribute("subjects", subjects)
-            model.addAttribute("subject", newSubject) // Добавьте эту строку
+            model.addAttribute("subject", newSubject)
             return "subjectList"
         }
-        subjectService?.addSubject(newSubject)
+        subjectApiService.addOrUpdateSubject(newSubject)
         return "redirect:/subjects"
     }
 
     @PostMapping("/subjects/delete")
     fun deleteSubject(@RequestParam id: Int, @RequestParam action: String): String {
-        when (action) {
-            "logical" -> {
-                subjectService?.logicalDeleteSubject(id)
-            }
-            "physical" -> {
-                subjectService?.deleteSubject(id)
-            }
-        }
+        subjectApiService.deleteSubject(id, action)
         return "redirect:/subjects"
     }
 
     @PostMapping("/subjects/deleteMultiple")
     fun deleteMultipleSubjects(@RequestParam subjectIds: List<Int>?): String {
-        if (subjectIds.isNullOrEmpty()) return "redirect:/subjects"
-        subjectService?.deleteMultipleSubjects(subjectIds)
+        if (!subjectIds.isNullOrEmpty()) {
+            subjectApiService.deleteMultipleSubjects(subjectIds)
+        }
         return "redirect:/subjects"
     }
 }

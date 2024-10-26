@@ -17,7 +17,7 @@
       <select th:field="*{subjects}" multiple required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
         <option value="">Выберите предметы</option>
         <th:block th:each="sub : ${availableSubjects}">
-          <option th:value="${sub.id}" th:text="${sub.name}"></option>
+          <option th:value="${sub}" th:text="${sub}"></option>
         </th:block>
       </select>
       <input type="number" th:field="*{age}" placeholder="Возраст" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">

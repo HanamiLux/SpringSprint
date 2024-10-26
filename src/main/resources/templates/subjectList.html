@@ -42,7 +42,7 @@
     <h2 class="text-xl font-semibold text-gray-700 mb-4">Удаление предметов</h2>
     <form action="/subjects/deleteMultiple" method="post" class="mb-6">
       <ul class="space-y-2">
-        <th:block th:each="subject : ${subjects}">
+        <th:block th:each="subject : ${allSubjects}">
           <li class="flex items-center space-x-2">
             <input type="checkbox" name="subjectIds" th:value="${subject.id}" class="form-checkbox h-5 w-5 text-indigo-600">
             <span th:text="${subject.name}" class="text-gray-700"></span>

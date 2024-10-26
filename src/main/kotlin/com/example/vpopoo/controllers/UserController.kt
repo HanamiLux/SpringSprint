@@ -24,6 +24,16 @@ class UserController (private val userApiService: UserApiService) {
         }
     }
 
+    @GetMapping("/name")
+    fun getUserByName(@RequestParam username: String): ResponseEntity<UserModel> {
+        val user = userApiService.getUserByName(username)
+        return if (user != null) {
+            ResponseEntity.ok(user)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
     @PostMapping("/addOrUpdate")
     fun addOrUpdateCourse(
         @Valid @ModelAttribute newUser: UserModel,

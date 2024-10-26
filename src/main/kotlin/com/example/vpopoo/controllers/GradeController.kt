@@ -1,37 +1,30 @@
 package com.example.vpopoo.controllers
 
 import com.example.vpopoo.model.GradeModel
-import com.example.vpopoo.service.GradeService
+import com.example.vpopoo.service.GradeApiService
 import jakarta.validation.Valid
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 
 @Controller
-class GradeController(private val gradeService: GradeService) {
+class GradeController(private val gradeApiService: GradeApiService) {
 
     @GetMapping("/grades")
     fun getAllGrades(
         model: Model,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(defaultValue = "10") size: Int
     ): String {
-        val pageable = PageRequest.of(page, size)
-        val gradesPage = gradeService.findAllGrades(pageable)
-        val allGradeModels = gradeService.findAllGradesList()
-        val gradeModels = gradesPage.content
-        model.addAttribute("gradeModels", gradeModels)
+        val grades = gradeApiService.getAllGrades(page, size)
+        val allGradeModels = gradeApiService.getAllGradesList()
+        model.addAttribute("gradeModels", grades)
         model.addAttribute("allGradeModels", allGradeModels)
-        model.addAttribute("currentPage", gradesPage.number)
-        model.addAttribute("totalPages", gradesPage.totalPages)
+        model.addAttribute("currentPage", page)
+        model.addAttribute("totalPages", (grades.size + size - 1) / size)
         model.addAttribute("pageSize", size)
         model.addAttribute("gradeModel", GradeModel())
-
         return "gradeList"
     }
 
@@ -42,32 +35,26 @@ class GradeController(private val gradeService: GradeService) {
         model: Model
     ): String {
         if (bindingResult.hasErrors()) {
-            val gradeModels = gradeService.findAllGradesList()
+            val gradeModels = gradeApiService.getAllGradesList()
             model.addAttribute("gradeModels", gradeModels)
             model.addAttribute("gradeModel", newGrade)
             return "gradeList"
         }
-        gradeService.addGrade(newGrade)
+        gradeApiService.addOrUpdateGrade(newGrade)
         return "redirect:/grades"
     }
 
     @PostMapping("/grades/delete")
     fun deleteGrade(@RequestParam id: Int, @RequestParam action: String): String {
-        when (action) {
-            "logical" -> {
-                gradeService.logicalDeleteGrade(id)
-            }
-            "physical" -> {
-                gradeService.deleteGrade(id)
-            }
-        }
+            gradeApiService.deleteGrade(id, action)
         return "redirect:/grades"
     }
 
     @PostMapping("/grades/deleteMultiple")
     fun deleteMultipleGrades(@RequestParam gradeIds: List<Int>?): String {
-        if (gradeIds.isNullOrEmpty()) return "redirect:/grades"
-        gradeService.deleteMultipleGrades(gradeIds)
+        if (!gradeIds.isNullOrEmpty()) {
+            gradeApiService.deleteMultipleGrades(gradeIds)
+        }
         return "redirect:/grades"
     }
 }

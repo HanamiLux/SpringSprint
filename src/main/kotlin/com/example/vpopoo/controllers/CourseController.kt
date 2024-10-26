@@ -21,7 +21,9 @@ class CourseController(private val courseApiService: CourseApiService) {
         @RequestParam(defaultValue = "10") size: Int
     ): String {
         val courses = courseApiService.getAllCourses(page, size)
+        val allCourses = courseApiService.getAllCoursesList()
         model.addAttribute("courses", courses)
+        model.addAttribute("allCourses", allCourses)
         model.addAttribute("currentPage", page)
         model.addAttribute("totalPages", (courses.size + size - 1) / size) // Пример вычисления общего числа страниц
         model.addAttribute("pageSize", size)

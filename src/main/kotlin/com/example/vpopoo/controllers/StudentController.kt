@@ -1,13 +1,11 @@
 package com.example.vpopoo.controllers
 
 import com.example.vpopoo.model.StudentModel
-import com.example.vpopoo.service.CourseService
-import com.example.vpopoo.service.GradeService
-import com.example.vpopoo.service.StudentService
-import com.example.vpopoo.service.UniversityService
+import com.example.vpopoo.service.CourseApiService
+import com.example.vpopoo.service.GradeApiService
+import com.example.vpopoo.service.StudentApiService
+import com.example.vpopoo.service.UniversityApiService
 import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -17,38 +15,32 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
-class StudentController {
-    @Autowired
-    private lateinit var courseService: CourseService
-
-    @Autowired
-    private val studentService: StudentService? = null
-
-    @Autowired
-    private val universityService: UniversityService? = null
-
-    @Autowired
-    private val gradeService: GradeService? = null
+class StudentController(
+    private val courseService: CourseApiService,
+    private val studentService: StudentApiService,
+    private val universityService: UniversityApiService,
+    private val gradeService: GradeApiService
+) {
 
     @GetMapping("/students")
     fun getAllStudents(
         model: Model,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(defaultValue = "10") size: Int
     ): String {
-        val pageable = PageRequest.of(page, size)
-        val studentsPage = studentService?.findPaginatedStudents(pageable)
+        val students = studentService.getAllStudents(page, size)
+        val allStudents = studentService.getAllStudentsList()
+        val availableUniversities = universityService.getAllUniversitiesList()
+        val availableGrades = gradeService.getAllGradesList()
+        val availableCourses = courseService.getAllCoursesList()
 
-        val students = studentsPage?.content
-        val availableUniversities = universityService?.findAllUniversities()
-        val availableGrades = gradeService?.findAllGradesList()
-        val availableCourses = courseService.findAllCoursesList()
+        model.addAttribute("students", students)
+        model.addAttribute("allStudents", allStudents)
         model.addAttribute("availableUniversities", availableUniversities)
         model.addAttribute("availableGrades", availableGrades)
         model.addAttribute("availableCourses", availableCourses)
-        model.addAttribute("students", students)
-        model.addAttribute("currentPage", studentsPage?.number)
-        model.addAttribute("totalPages", studentsPage?.totalPages)
+        model.addAttribute("currentPage", page)
+        model.addAttribute("totalPages", (allStudents.size + size - 1) / size)
         model.addAttribute("pageSize", size)
         model.addAttribute("student", StudentModel())
 
@@ -61,22 +53,23 @@ class StudentController {
         @RequestParam(required = false) grade: String?,
         model: Model
     ): String {
-        val students = studentService?.findAllStudent()
+        val students = studentService.getAllStudentsList()
 
         // Фильтрация по университету и оценке
-        val filteredStudents = students?.filter { student ->
-            (university.isNullOrEmpty() || student?.university?.name == university) &&
-                    (grade.isNullOrEmpty() || student?.gradeField?.gradeContent == grade)
+        val filteredStudents = students.filter { student ->
+            (university.isNullOrEmpty() || student.university?.name == university) &&
+                    (grade.isNullOrEmpty() || student.gradeField?.gradeContent == grade)
         }
 
-        val availableUniversities = universityService?.findAllUniversities()
-        val availableGrades = gradeService?.findAllGradesList()
-        val availableCourses = courseService.findAllCoursesList()
+        val availableUniversities = universityService.getAllUniversitiesList()
+        val availableGrades = gradeService.getAllGradesList()
+        val availableCourses = courseService.getAllCoursesList()
+
         model.addAttribute("students", filteredStudents)
-        model.addAttribute("availableCourses", availableCourses)
         model.addAttribute("availableUniversities", availableUniversities)
         model.addAttribute("availableGrades", availableGrades)
-        model.addAttribute("student", StudentModel()) // Добавьте эту строку
+        model.addAttribute("availableCourses", availableCourses)
+        model.addAttribute("student", StudentModel())
 
         return "studentList"
     }
@@ -88,51 +81,36 @@ class StudentController {
         model: Model
     ): String {
         if (bindingResult.hasErrors()) {
-            val students = studentService?.findAllStudent()
-            val availableUniversities = universityService?.findAllUniversities()
-            val availableGrades = gradeService?.findAllGradesList()
-            val availableCourses = courseService.findAllCoursesList()
+            val students = studentService.getAllStudentsList()
+            val availableUniversities = universityService.getAllUniversitiesList()
+            val availableGrades = gradeService.getAllGradesList()
+            val availableCourses = courseService.getAllCoursesList()
+
             model.addAttribute("students", students)
             model.addAttribute("availableUniversities", availableUniversities)
-            model.addAttribute("availableCourses", availableCourses)
             model.addAttribute("availableGrades", availableGrades)
+            model.addAttribute("availableCourses", availableCourses)
             model.addAttribute("student", newStudent)
+
             return "studentList"
         }
-        if(newStudent.id != null) {
-            val existingStudent = studentService?.findStudentById(newStudent.id!!)
-            existingStudent?.gradeField?.student = null
-            val grade = gradeService?.findGradeById(newStudent.gradeField?.id!!)
-            if (grade != null) {
-                newStudent.gradeField = grade
-                grade.student = newStudent
-            }
+
+        val grade = gradeService.getGradeById(newStudent.gradeField?.id ?: 0)
+        if (grade != null) {
+            newStudent.gradeField = grade
+            grade.student = newStudent
         }
-        else {
-            val grade = gradeService?.findGradeById(newStudent.gradeField?.id!!)
-            if (grade != null) {
-                newStudent.gradeField = grade
-                grade.student = newStudent
-            }
-        }
-        studentService?.addStudent(newStudent)
+
+        studentService.addOrUpdateStudent(newStudent)
         return "redirect:/students"
     }
 
     @PostMapping("/students/delete")
     fun deleteStudent(@RequestParam id: Int, @RequestParam action: String): String {
-        val student = studentService?.findStudentById(id)
+        val student = studentService.getStudentById(id)
         student?.gradeField?.student = null
-        gradeService?.addGrade(student?.gradeField!!)
-        when (action) {
-            "logical" -> {
-                studentService?.logicalDeleteStudent(id)
-            }
-
-            "physical" -> {
-                studentService?.deleteStudent(id)
-            }
-        }
+        gradeService.addOrUpdateGrade(student?.gradeField ?: return "redirect:/students")
+        studentService.deleteStudent(id, action)
         return "redirect:/students"
     }
 
@@ -144,20 +122,23 @@ class StudentController {
         @RequestParam firstName: String?,
         @RequestParam middleName: String?
     ): String {
-        model.addAttribute("students", studentService?.findStudentByName(name, lastName, firstName, middleName))
-        model.addAttribute("student", StudentModel()) // Добавьте эту строку
+        val students = studentService.getStudentsByName(name, lastName, firstName, middleName)
+        model.addAttribute("students", students)
+        model.addAttribute("student", StudentModel())
         return "studentList"
     }
 
     @PostMapping("/students/deleteMultiple")
     fun deleteMultipleStudents(@RequestParam studentIds: List<Int>?): String {
         if (studentIds.isNullOrEmpty()) return "redirect:/students"
-        for (studentId in studentIds) {
-            val student = studentService?.findStudentById(studentId)
+
+        studentIds.forEach { studentId ->
+            val student = studentService.getStudentById(studentId)
             student?.gradeField?.student = null
-            gradeService?.addGrade(student?.gradeField!!)
+            gradeService.addOrUpdateGrade(student?.gradeField ?: return "redirect:/students")
         }
-        studentService?.deleteMultipleStudents(studentIds)
+
+        studentService.deleteMultipleStudents(studentIds)
         return "redirect:/students"
     }
 }

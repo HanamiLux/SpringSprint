@@ -1,12 +1,10 @@
 package com.example.vpopoo.controllers
 
+import com.example.vpopoo.model.Subject
 import com.example.vpopoo.model.TeacherModel
-import com.example.vpopoo.service.SubjectService
-import com.example.vpopoo.service.TeacherService
+import com.example.vpopoo.service.SubjectApiService
+import com.example.vpopoo.service.TeacherApiService
 import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -16,54 +14,25 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
-class TeacherController {
-    @Autowired
-    private val teacherService: TeacherService? = null
-    @Autowired
-    private val subjectService: SubjectService? = null
+class TeacherController(private val teacherApiService: TeacherApiService,
+                        private val subjectApiService: SubjectApiService) {
+
     @GetMapping("/teachers")
     fun getAllTeachers(
         model: Model,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(defaultValue = "10") size: Int
     ): String {
-        val pageable = PageRequest.of(page, size)
-        val teachersPage = teacherService?.findPaginatedTeachers(pageable)
-        val availableSubjects = subjectService?.findAllSubjects()
-
-        val teachers = teachersPage?.content
-        model.addAttribute("availableSubjects", availableSubjects)
+        val teachers = teacherApiService.getAllTeachers(page, size)
+        val subjects = subjectApiService.getAllSubjectsList()
+        val allTeachers = teacherApiService.getAllTeachersList()
         model.addAttribute("teachers", teachers)
-        model.addAttribute("currentPage", teachersPage?.number)
-        model.addAttribute("totalPages", teachersPage?.totalPages)
+        model.addAttribute("allTeachers", allTeachers)
+        model.addAttribute("availableSubjects", subjects)
+        model.addAttribute("currentPage", page)
+        model.addAttribute("totalPages", (teachers.size + size - 1) / size)
         model.addAttribute("pageSize", size)
         model.addAttribute("teacher", TeacherModel())
-
-        return "teacherList"
-    }
-
-    @GetMapping("/teachers/filter")
-    fun filterTeachers(
-        @RequestParam(required = false) subject: String?,
-        @RequestParam(required = false) age: Int?,
-        @RequestParam(required = false) stage: Int?,
-        model: Model
-    ): String {
-        val teachers = teacherService?.findAllTeachers()
-
-        // Фильтрация учителей по предмету, возрасту и стажу
-        val filteredTeachers = teachers?.filter { teacher ->
-            (subject.isNullOrEmpty() || teacher?.subject == subject) &&
-                    (age == null || (teacher?.age ?: 0) > age) &&
-                    (stage == null || (teacher?.stage ?: 0) > stage)
-        }
-
-        val availableSubjects = subjectService?.findAllSubjects()
-
-        model.addAttribute("availableSubjects", availableSubjects)
-        model.addAttribute("teachers", filteredTeachers)
-        model.addAttribute("teacher", TeacherModel()) // Добавьте эту строку
-
         return "teacherList"
     }
 
@@ -71,49 +40,36 @@ class TeacherController {
     fun addOrUpdateTeacher(
         @Valid @ModelAttribute newTeacher: TeacherModel,
         bindingResult: BindingResult,
-        model: Model
+        model: Model,
+        @RequestParam subjects: List<Subject>
     ): String {
+
+        newTeacher.subjects = subjects.toMutableList()
+
         if (bindingResult.hasErrors()) {
-            val teachers = teacherService?.findAllTeachers()
-            val availableSubjects = subjectService?.findAllSubjects()
-            model.addAttribute("availableSubjects", availableSubjects)
-            model.addAttribute("teachers", teachers)
-            model.addAttribute("teacher", newTeacher) // Добавьте эту строку
+            val allTeachers = teacherApiService.getAllTeachers(0, Int.MAX_VALUE)
+            val subjectsList = subjectApiService.getAllSubjectsList()
+            model.addAttribute("teachers", allTeachers)
+            model.addAttribute("availableSubjects", subjectsList)
+            model.addAttribute("teacher", newTeacher)
             return "teacherList"
         }
-        teacherService?.addTeacher(newTeacher)
+
+        teacherApiService.addOrUpdateTeacher(newTeacher)
         return "redirect:/teachers"
     }
 
     @PostMapping("/teachers/delete")
     fun deleteTeacher(@RequestParam id: Int, @RequestParam action: String): String {
-        when (action) {
-            "logical" -> {
-                teacherService?.logicalDeleteTeacher(id)
-            }
-            "physical" -> {
-                teacherService?.deleteTeacher(id)
-            }
-        }
+        teacherApiService.deleteTeacher(id, action)
         return "redirect:/teachers"
-    }
-
-    @GetMapping("/teachers/find")
-    fun findTeacherByName(
-        model: Model,
-        @RequestParam name: String?,
-        @RequestParam lastName: String?
-    ): String {
-        val foundTeachers = teacherService?.findTeacherByName(name, lastName)
-        model.addAttribute("teachers", foundTeachers)
-        model.addAttribute("teacher", TeacherModel()) // Добавьте эту строку
-        return "teacherList"
     }
 
     @PostMapping("/teachers/deleteMultiple")
     fun deleteMultipleTeachers(@RequestParam teacherIds: List<Int>?): String {
-        if (teacherIds.isNullOrEmpty()) return "redirect:/teachers"
-        teacherService?.deleteMultipleTeachers(teacherIds)
+        if (!teacherIds.isNullOrEmpty()) {
+            teacherApiService.deleteMultipleTeachers(teacherIds)
+        }
         return "redirect:/teachers"
     }
 }

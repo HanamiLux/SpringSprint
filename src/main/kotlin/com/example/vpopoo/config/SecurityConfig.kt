@@ -1,11 +1,15 @@
 package com.example.vpopoo.config
 
 import com.example.vpopoo.model.UserModel
-import com.example.vpopoo.repository.UserRepository
+import com.example.vpopoo.service.ApiClient
+import com.example.vpopoo.service.UserApiService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpMethod
+import org.springframework.http.ResponseEntity
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -24,7 +28,6 @@ import org.springframework.web.client.RestTemplate
 @Configuration
 @EnableWebSecurity
 class SecurityConfig @Autowired constructor(
-    private val userRepository: UserRepository,
     @Lazy private val passwordEncoder: PasswordEncoder
 ) {
 
@@ -32,7 +35,14 @@ class SecurityConfig @Autowired constructor(
     fun configureGlobal(auth: AuthenticationManagerBuilder) {
         auth.userDetailsService(object : UserDetailsService {
             override fun loadUserByUsername(username: String?): UserDetails {
-                val user: UserModel = userRepository.findByUsername(username)
+                val response: ResponseEntity<UserModel> = RestTemplate().exchange(
+                    "http://localhost:8081/api/users/name?username=$username",
+                    HttpMethod.GET,
+                    null,
+                    object: ParameterizedTypeReference<UserModel>() {}
+                )
+                val user: UserModel = response.body
+
                     ?: throw UsernameNotFoundException("User not found")
 
                 return org.springframework.security.core.userdetails.User(
