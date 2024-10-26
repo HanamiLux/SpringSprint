@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.session.HttpSessionEventPublisher
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.web.client.RestTemplate
 
 @Configuration
 @EnableWebSecurity
@@ -93,6 +94,11 @@ class SecurityConfig @Autowired constructor(
         return WebSecurityCustomizer { web ->
             web.ignoring().requestMatchers("/h2-console/**")
         }
+    }
+
+    @Bean
+    fun restTemplate(): RestTemplate {
+        return RestTemplate()
     }
 
     @Bean

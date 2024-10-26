@@ -1,22 +1,22 @@
 package com.example.vpopoo.controllers
 
 import com.example.vpopoo.model.UserModel
-import com.example.vpopoo.service.UserService
-import org.springframework.beans.factory.annotation.Autowired
+import com.example.vpopoo.service.UserApiService
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.ui.Model
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/users")
-class UserController @Autowired constructor(
-    private val userService: UserService
-) {
+@RequestMapping("/users")
+class UserController (private val userApiService: UserApiService) {
     @GetMapping
-    fun getAllUsers(): List<UserModel> = userService.getAllUsers()
+    fun getAllUsers(): List<UserModel> = userApiService.getAllUsers()
 
     @GetMapping("/{id}")
     fun getUserById(@PathVariable id: Long): ResponseEntity<UserModel> {
-        val user = userService.getUserById(id)
+        val user = userApiService.getUserById(id)
         return if (user != null) {
             ResponseEntity.ok(user)
         } else {
@@ -24,33 +24,17 @@ class UserController @Autowired constructor(
         }
     }
 
-    @PostMapping
-    fun createUser(@RequestBody user: UserModel): Any {
-        try{
-        userService.registerUser(user)
-            return ResponseEntity.ok(user)
-        }
-        catch (ex:Exception){
-            return ResponseEntity.badRequest()
-        }
-    }
-
-    @PutMapping("/{id}")
-    fun updateUser(@PathVariable id: Long, @RequestBody user: UserModel): ResponseEntity<UserModel> {
-        val updatedUser = userService.updateUser(id, user)
-        return if (updatedUser != null) {
-            ResponseEntity.ok(updatedUser)
-        } else {
-            ResponseEntity.notFound().build()
-        }
+    @PostMapping("/addOrUpdate")
+    fun addOrUpdateCourse(
+        @Valid @ModelAttribute newUser: UserModel,
+        bindingResult: BindingResult,
+        model: Model
+    ): UserModel {
+        return userApiService.addOrUpdateUser(newUser) ?: UserModel()
     }
 
     @DeleteMapping("/{id}")
-    fun deleteUser(@PathVariable id: Long): ResponseEntity<Void> {
-        return if (userService.deleteUser(id)) {
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.notFound().build()
-        }
+    fun deleteUser(@PathVariable id: Long) {
+        userApiService.deleteUser(id)
     }
 }

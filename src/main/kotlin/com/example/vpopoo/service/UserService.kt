@@ -1,73 +1,28 @@
 package com.example.vpopoo.service
 
-import com.example.vpopoo.model.RoleEnum
 import com.example.vpopoo.model.UserModel
-import com.example.vpopoo.repository.UserRepository
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
-class UserService @Autowired constructor(
-    private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
-) {
-    fun registerUser(user: UserModel): UserModel {
-        try {
-            // Валидация данных
-            if (user.username.isEmpty() || user.password.isEmpty()) {
-                throw Exception("Invalid user data")
-            }
-            if(user.password.length < 4) {
-                throw Exception("Invalid password")
-            }
-            user.isActive = true
-            user.password = passwordEncoder.encode(user.password)
-            user.roles = Collections.singleton(RoleEnum.MANAGER)
-            userRepository.save(user)
-            return user
-        } catch (e: Exception) {
-            throw Exception("Error registering user: ${e.message}")
-        }
-    }
+class UserApiService(private val apiClient: ApiClient) {
 
-    fun getAllUsers(): List<UserModel> = userRepository.findAll()
+    private val apiUrl = "http://localhost:8081/api/users"
 
-
-    fun updateUser(id: Long, user: UserModel): UserModel? {
-        return if (userRepository.existsById(id)) {
-            user.id = id
-            userRepository.save(user)
-        } else {
-            null
-        }
-    }
-    fun deleteUser(id: Long): Boolean {
-        return if (userRepository.existsById(id)) {
-            userRepository.deleteById(id)
-            true
-        } else {
-            false
-        }
-    }
-
-    fun getUserByName(name: String): UserModel? {
-        try {
-            // Возвращаем пользователя по имени
-            return userRepository.findByUsername(name)
-        } catch (e: Exception) {
-            // Обработка исключений
-            throw Exception("Error getting user by name: ${e.message}")
-        }
+    fun getAllUsers(): List<UserModel> {
+        return apiClient.getAll(apiUrl, 0, Int.MAX_VALUE, object : ParameterizedTypeReference<List<UserModel>>() {})
     }
 
     fun getUserById(id: Long): UserModel? {
-        try {
-            return userRepository.findByIdOrNull(id)
-        } catch (e: Exception) {
-            throw Exception("Error getting user by name: ${e.message}")
-        }
+        return apiClient.get("$apiUrl/$id", object : ParameterizedTypeReference<UserModel>() {})
     }
+
+    fun addOrUpdateUser(user: UserModel): UserModel? {
+        return apiClient.addOrUpdate(apiUrl, user, UserModel::class.java)
+    }
+
+    fun deleteUser(id: Long) {
+        apiClient.delete("$apiUrl/$id", id.toInt(), "")
+    }
+
 }

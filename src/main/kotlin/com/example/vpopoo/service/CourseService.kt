@@ -1,48 +1,27 @@
 package com.example.vpopoo.service
 
 import com.example.vpopoo.model.Course
-import com.example.vpopoo.repository.CourseRepository
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
-import org.springframework.data.repository.findByIdOrNull
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Service
 
 @Service
-class CourseService @Autowired constructor(private val courseRepository: CourseRepository) {
+class CourseApiService(private val apiClient: ApiClient) {
 
-    fun getAllCourses(pageable: Pageable): Page<Course> = courseRepository.findAllByLogic(pageable)
+    private val apiUrl = "http://localhost:8081/api/courses"
 
-    fun findAllCoursesList(): List<Course> = courseRepository.findAll()
-
-    fun getCourseById(id: Int): Course? = courseRepository.findByIdOrNull(id)
-
-    fun addCourse(course: Course): Course = courseRepository.save(course)
-
-    fun updateCourse(id: Int, course: Course): Course? {
-        return if (courseRepository.existsById(id)) {
-            courseRepository.save(course)
-        } else {
-            null
-        }
+    fun getAllCourses(page: Int, size: Int): List<Course> {
+        return apiClient.getAll(apiUrl, page, size, object : ParameterizedTypeReference<List<Course>>() {})
     }
 
-    fun deleteCourse(id: Int): Boolean {
-        return if (courseRepository.existsById(id)) {
-            courseRepository.deleteById(id)
-            true
-        } else {
-            false
-        }
+    fun addOrUpdateCourse(course: Course): Course? {
+        return apiClient.addOrUpdate(apiUrl, course, Course::class.java)
     }
 
-    fun logicalDeleteCourse(id: Int) {
-        val course = courseRepository.findById(id).orElseThrow()
-        course.isDeleted = true
-        courseRepository.save(course)
+    fun deleteCourse(id: Int, action: String) {
+        apiClient.delete(apiUrl, id, action)
     }
 
-    fun deleteMultipleCourses(courseIds: List<Int>) {
-        courseRepository.deleteMultipleCourses(courseIds)
+    fun deleteMultipleCourses(ids: List<Int>) {
+        apiClient.deleteMultiple(apiUrl, ids)
     }
 }
