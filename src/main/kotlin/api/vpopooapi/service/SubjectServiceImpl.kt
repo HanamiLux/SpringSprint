@@ -2,7 +2,6 @@ package api.vpopooapi.service
 
 import api.vpopooapi.model.Subject
 import api.vpopooapi.repository.SubjectRepository
-import api.vpopooapi.service.SubjectService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

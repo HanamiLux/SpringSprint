@@ -2,7 +2,6 @@ package api.vpopooapi.service
 
 import api.vpopooapi.model.University
 import api.vpopooapi.repository.UniversityRepository
-import api.vpopooapi.service.UniversityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

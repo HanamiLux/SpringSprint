@@ -2,7 +2,6 @@ package api.vpopooapi.service
 
 import api.vpopooapi.model.GradeModel
 import api.vpopooapi.repository.GradeRepository
-import api.vpopooapi.service.GradeService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

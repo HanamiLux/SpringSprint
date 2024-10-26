@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>api</groupId>
-	<artifactId>VPoPOoAPI</artifactId>
+	<artifactId>Api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>VPoPOoAPI</name>
+	<name>Api</name>
 	<description>VPoPOoAPI</description>
 	<url/>
 	<licenses>
@@ -78,20 +78,11 @@
 			<artifactId>kotlin-test-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 
 	<build>
-		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+		<sourceDirectory>../src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>../src/test/kotlin</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
