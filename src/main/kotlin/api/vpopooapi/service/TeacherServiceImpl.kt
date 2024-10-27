@@ -1,6 +1,7 @@
 package api.vpopooapi.service
 
 import api.vpopooapi.model.Subject
+import api.vpopooapi.model.TeacherDTO
 import api.vpopooapi.model.TeacherModel
 import api.vpopooapi.repository.SubjectRepository
 import api.vpopooapi.repository.TeacherRepository
@@ -13,8 +14,19 @@ import org.springframework.stereotype.Service
 @Service
 class TeacherServiceImpl @Autowired constructor(private val teacherRepository: TeacherRepository, private val subjectRepository: SubjectRepository) :
     TeacherService {
-    override fun findAllTeachers(): List<TeacherModel?> {
-        return teacherRepository.findAll()
+    override fun findAllTeachers(): List<TeacherDTO> {
+        val teachers = teacherRepository.findAll()
+        return teachers.map { teacher ->
+            TeacherDTO(
+                id = teacher.id!!,
+                name = teacher.name!!,
+                lastName = teacher.lastName!!,
+                subjectIds = teacher.subjects.mapNotNull { it.id },
+                age = teacher.age!!,
+                stage = teacher.stage!!,
+                isDeleted = teacher.isDeleted
+            )
+        }
     }
 
     override fun findTeacherById(id: Int): TeacherModel? {
@@ -22,8 +34,14 @@ class TeacherServiceImpl @Autowired constructor(private val teacherRepository: T
     }
 
     override fun addTeacher(teacher: TeacherModel): TeacherModel? {
-        val subjects = teacher.subjects.map { it.id?.let { it1 -> subjectRepository.findById(it1).orElseThrow { RuntimeException("Subject not found") } } }
-        teacher.subjects = subjects as MutableList<Subject>
+        val subjects = teacher.subjects.mapNotNull {
+            it.id?.let { subjectId ->
+                subjectRepository.findById(subjectId).orElseThrow {
+                    RuntimeException("Subject with ID $subjectId not found")
+                }
+            }
+        }
+        teacher.subjects = subjects.toMutableList()
         return teacherRepository.save(teacher)
     }
 
@@ -45,7 +63,18 @@ class TeacherServiceImpl @Autowired constructor(private val teacherRepository: T
         teacherRepository.save(teacher)
     }
 
-    override fun findPaginatedTeachers(pageable: Pageable): Page<TeacherModel?> {
-        return teacherRepository.findAllByLogic(pageable)
+    override fun findPaginatedTeachers(pageable: Pageable): Page<TeacherDTO> {
+        val teachers = teacherRepository.findAllByLogic(pageable)
+        return teachers.map { teacher ->
+            TeacherDTO(
+                id = teacher!!.id!!,
+                name = teacher.name!!,
+                lastName = teacher.lastName!!,
+                subjectIds = teacher.subjects.mapNotNull { it.id },
+                age = teacher.age!!,
+                stage = teacher.stage!!,
+                isDeleted = teacher.isDeleted
+            )
+        }
     }
 }

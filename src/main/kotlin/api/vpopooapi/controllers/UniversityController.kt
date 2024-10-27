@@ -1,6 +1,7 @@
 package api.vpopooapi.controllers
 
 import api.vpopooapi.model.University
+import api.vpopooapi.model.UniversityDTO
 import api.vpopooapi.service.UniversityService
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
@@ -14,15 +15,16 @@ class UniversityController(private val universityService: UniversityService) {
     fun getAllUniversities(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
-    ): ResponseEntity<List<University?>> {
+    ): ResponseEntity<List<UniversityDTO>> {
         val pageable = PageRequest.of(page, size)
         val universities = universityService.findPaginatedUniversities(pageable).content
         return ResponseEntity.ok(universities)
     }
 
     @GetMapping("/all")
-    fun getAllUniversitiesList(): ResponseEntity<List<University?>> {
-        return ResponseEntity.ok(universityService.findAllUniversities())
+    fun getAllUniversitiesList(): ResponseEntity<List<UniversityDTO>> {
+        val x = ResponseEntity.ok(universityService.findAllUniversities())
+        return x
     }
 
     @PostMapping

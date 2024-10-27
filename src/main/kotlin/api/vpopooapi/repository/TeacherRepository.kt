@@ -1,6 +1,5 @@
 package api.vpopooapi.repository
 
-import api.vpopooapi.model.StudentModel
 import api.vpopooapi.model.TeacherModel
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page

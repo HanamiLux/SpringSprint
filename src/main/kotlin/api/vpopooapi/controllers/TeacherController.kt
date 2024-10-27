@@ -1,5 +1,6 @@
 package api.vpopooapi.controllers
 
+import api.vpopooapi.model.TeacherDTO
 import api.vpopooapi.model.TeacherModel
 import api.vpopooapi.service.TeacherService
 import org.springframework.data.domain.PageRequest
@@ -14,15 +15,16 @@ class TeacherController(private val teacherService: TeacherService) {
     fun getAllTeachers(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
-    ): ResponseEntity<List<TeacherModel?>> {
+    ): ResponseEntity<List<TeacherDTO?>> {
         val pageable = PageRequest.of(page, size)
         val teachers = teacherService.findPaginatedTeachers(pageable).content
         return ResponseEntity.ok(teachers)
     }
 
     @GetMapping("/all")
-    fun getAllTeachersList(): ResponseEntity<List<TeacherModel?>> {
-        return ResponseEntity.ok(teacherService.findAllTeachers())
+    fun getAllTeachersList(): ResponseEntity<List<TeacherDTO?>> {
+        val x = teacherService.findAllTeachers()
+        return ResponseEntity.ok(x)
     }
 
     @PostMapping

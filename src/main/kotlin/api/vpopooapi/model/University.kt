@@ -4,7 +4,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "universities")
-open class University @JvmOverloads constructor(
+class University @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +19,14 @@ open class University @JvmOverloads constructor(
 
     @OneToMany(mappedBy = "university", cascade = [CascadeType.ALL])
     var teachers: MutableList<TeacherModel> = mutableListOf()
-)
+){
+    // Дополнительный конструктор для получения только name
+    constructor(name: String?) : this(
+        name = name,
+        id = null, // или любое другое значение по умолчанию
+        isDeleted = false, // значение по умолчанию для isDeleted
+        students = mutableListOf(), // значение по умолчанию для students
+        teachers = mutableListOf() // значение по умолчанию для teachers
+    )
+}
+
