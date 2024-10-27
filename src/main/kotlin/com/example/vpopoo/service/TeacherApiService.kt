@@ -5,19 +5,31 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Service
 
 @Service
-class TeacherApiService(private val apiClient: ApiClient) {
+class TeacherApiService(
+    private val apiClient: ApiClient,
+    private val subjectApiService: SubjectApiService
+) {
 
     private val apiUrl = "http://localhost:8081/api/teachers"
 
     fun getAllTeachers(page: Int, size: Int): List<TeacherModel> {
-        return apiClient.getAll(apiUrl, page, size, object : ParameterizedTypeReference<List<TeacherModel>>() {})
+        val teachers = apiClient.getAll(apiUrl, page, size, object : ParameterizedTypeReference<List<TeacherModel>>() {})
+        teachers.forEach {
+            it.subjects = subjectApiService.getSubjectsById(it.subjectIds)?: listOf()
+        }
+        return teachers
     }
 
     fun getAllTeachersList(): List<TeacherModel> {
-        return apiClient.getAll("$apiUrl/all", 0, Int.MAX_VALUE, object : ParameterizedTypeReference<List<TeacherModel>>() {})
+        val teachers =  apiClient.getAll("$apiUrl/all", 0, Int.MAX_VALUE, object : ParameterizedTypeReference<List<TeacherModel>>() {})
+        teachers.forEach {
+            it.subjects = subjectApiService.getSubjectsById(it.subjectIds)?: listOf()
+        }
+        return teachers
     }
 
     fun addOrUpdateTeacher(teacher: TeacherModel): TeacherModel? {
+        teacher.subjects = subjectApiService.getSubjectsById(teacher.subjectIds)?: listOf()
         return apiClient.addOrUpdate(apiUrl, teacher, TeacherModel::class.java)
     }
 

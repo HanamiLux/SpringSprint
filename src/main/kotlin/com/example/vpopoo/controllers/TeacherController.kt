@@ -43,9 +43,8 @@ class TeacherController(private val teacherApiService: TeacherApiService,
         model: Model,
         @RequestParam(value = "subjects", required = false) subjectIds: String
     ): String {
-           val selectedSubjects: List<Subject>? = subjectApiService
-               .getSubjectsById(subjectIds.split(",").map { it.trim().toInt() })
-            newTeacher.subjects = selectedSubjects!!.toMutableList()
+           val selectedSubjects: List<Int> = subjectIds.split(",").map { it.trim().toInt() }
+            newTeacher.subjectIds = selectedSubjects
 
         teacherApiService.addOrUpdateTeacher(newTeacher)
         return "redirect:/teachers"

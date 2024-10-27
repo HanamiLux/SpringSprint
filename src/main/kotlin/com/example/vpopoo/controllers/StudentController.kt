@@ -57,8 +57,8 @@ class StudentController(
 
         // Фильтрация по университету и оценке
         val filteredStudents = students.filter { student ->
-            (university.isNullOrEmpty() || student.university?.name == university) &&
-                    (grade.isNullOrEmpty() || student.gradeField?.gradeContent == grade)
+            (university.isNullOrEmpty() || student.university == university) &&
+                    (grade.isNullOrEmpty() || student.gradeField == grade)
         }
 
         val availableUniversities = universityService.getAllUniversitiesList()
@@ -76,7 +76,7 @@ class StudentController(
 
     @PostMapping("/students/addOrUpdate")
     fun addOrUpdateStudent(
-        @Valid @ModelAttribute newStudent: StudentModel,
+        @ModelAttribute newStudent: StudentModel,
         bindingResult: BindingResult,
         model: Model
     ): String {
@@ -91,14 +91,7 @@ class StudentController(
             model.addAttribute("availableGrades", availableGrades)
             model.addAttribute("availableCourses", availableCourses)
             model.addAttribute("student", newStudent)
-
             return "studentList"
-        }
-
-        val grade = gradeService.getGradeById(newStudent.gradeField?.id ?: 0)
-        if (grade != null) {
-            newStudent.gradeField = grade
-            grade.student = newStudent
         }
 
         studentService.addOrUpdateStudent(newStudent)
@@ -107,9 +100,6 @@ class StudentController(
 
     @PostMapping("/students/delete")
     fun deleteStudent(@RequestParam id: Int, @RequestParam action: String): String {
-        val student = studentService.getStudentById(id)
-        student?.gradeField?.student = null
-        gradeService.addOrUpdateGrade(student?.gradeField ?: return "redirect:/students")
         studentService.deleteStudent(id, action)
         return "redirect:/students"
     }
@@ -131,13 +121,6 @@ class StudentController(
     @PostMapping("/students/deleteMultiple")
     fun deleteMultipleStudents(@RequestParam studentIds: List<Int>?): String {
         if (studentIds.isNullOrEmpty()) return "redirect:/students"
-
-        studentIds.forEach { studentId ->
-            val student = studentService.getStudentById(studentId)
-            student?.gradeField?.student = null
-            gradeService.addOrUpdateGrade(student?.gradeField ?: return "redirect:/students")
-        }
-
         studentService.deleteMultipleStudents(studentIds)
         return "redirect:/students"
     }

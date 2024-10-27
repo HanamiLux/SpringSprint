@@ -21,6 +21,10 @@ class GradeApiService(private val apiClient: ApiClient) {
         return apiClient.get("$apiUrl/$id", object : ParameterizedTypeReference<GradeModel>() {})
     }
 
+    fun getGradeByName(name: String): GradeModel? {
+        return apiClient.get("$apiUrl/$name", object : ParameterizedTypeReference<GradeModel>() {})
+    }
+
     fun addOrUpdateGrade(grade: GradeModel): GradeModel? {
         return apiClient.addOrUpdate(apiUrl, grade, GradeModel::class.java)
     }

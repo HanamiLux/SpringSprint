@@ -5,7 +5,10 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Service
 
 @Service
-class StudentApiService(private val apiClient: ApiClient) {
+class StudentApiService(
+    private val apiClient: ApiClient,
+    private val gradeApiService: GradeApiService
+) {
 
     private val apiUrl = "http://localhost:8081/api/students"
 

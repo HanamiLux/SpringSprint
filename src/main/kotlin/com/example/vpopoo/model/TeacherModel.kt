@@ -9,5 +9,6 @@ data class TeacherModel(
     var age: Int? = null,
     var stage: Int? = null,
     var university: University? = null,
-    var subjects: MutableList<Subject> = mutableListOf()
+    var subjects: List<Subject> = listOf(),
+    var subjectIds: List<Int> = listOf()
 )

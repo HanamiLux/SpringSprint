@@ -7,7 +7,7 @@ data class StudentModel(
     var firstName: String? = null,
     var middleName: String? = null,
     var isDeleted: Boolean = false,
-    var university: University? = null,
-    var gradeField: GradeModel? = null,
-    var course: Course? = null
+    var university: String = "",
+    var gradeField: String = "",
+    var course: String = ""
 )

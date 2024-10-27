@@ -91,12 +91,18 @@
     <h2 class="text-xl font-semibold text-gray-700 mb-4">Удаление учителей</h2>
     <form action="/teachers/deleteMultiple" method="post" class="mb-6">
       <ul class="space-y-2">
-        <th:block th:each="teacher : ${teachers}">
+        <th:block th:each="teacher : ${allTeachers}">
           <li class="flex items-center space-x-2">
             <input type="checkbox" name="teacherIds" th:value="${teacher.id}" class="form-checkbox h-5 w-5 text-indigo-600">
-            <span th:text="${teacher.name} + ' ' + ${teacher.lastName} + ' ' + ${teacher.subject} + ' ' + ${teacher.age} + ' ' + ${teacher.stage}" class="text-gray-700"></span>
+            <span th:text="${teacher.name + ' ' + teacher.lastName + ' ' + teacher.age + ' ' + teacher.stage}" class="text-gray-700"></span>
+            <span>
+            <th:block th:each="subject : ${teacher.subjects}">
+                <span th:text="${subject.name} + ' | '"></span>
+            </th:block>
+        </span>
           </li>
         </th:block>
+
       </ul>
       <button type="submit" class="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Удалить выбранных учителей</button>
     </form>
