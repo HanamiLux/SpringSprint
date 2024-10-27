@@ -32,4 +32,10 @@ class SubjectApiService(private val apiClient: ApiClient) {
     fun deleteMultipleSubjects(ids: List<Int>) {
         apiClient.deleteMultiple(apiUrl, ids)
     }
+
+    fun getSubjectsById(subjectIds: List<Int>): List<Subject>? {
+        val idsString = subjectIds.joinToString(",")
+        val url = "$apiUrl/byIds?ids=$idsString"
+        return apiClient.gets(url, object : ParameterizedTypeReference<List<Subject>>() {})
+    }
 }

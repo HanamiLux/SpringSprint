@@ -30,6 +30,16 @@ class ApiClient(private val restTemplate: RestTemplate) {
         return response.body
     }
 
+    fun <T> gets(endpoint: String, responseType: ParameterizedTypeReference<T>): T? {
+        val response: ResponseEntity<T> = restTemplate.exchange(
+            endpoint,
+            HttpMethod.GET,
+            null,
+            responseType
+        )
+        return response.body
+    }
+
     fun <T> addOrUpdate(endpoint: String, entity: T, responseType: Class<T>): T? {
         return restTemplate.postForObject(endpoint, entity, responseType)
     }

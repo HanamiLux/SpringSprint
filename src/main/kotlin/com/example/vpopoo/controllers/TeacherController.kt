@@ -41,19 +41,11 @@ class TeacherController(private val teacherApiService: TeacherApiService,
         @Valid @ModelAttribute newTeacher: TeacherModel,
         bindingResult: BindingResult,
         model: Model,
-        @RequestParam subjects: List<Subject>
+        @RequestParam(value = "subjects", required = false) subjectIds: String
     ): String {
-
-        newTeacher.subjects = subjects.toMutableList()
-
-        if (bindingResult.hasErrors()) {
-            val allTeachers = teacherApiService.getAllTeachers(0, Int.MAX_VALUE)
-            val subjectsList = subjectApiService.getAllSubjectsList()
-            model.addAttribute("teachers", allTeachers)
-            model.addAttribute("availableSubjects", subjectsList)
-            model.addAttribute("teacher", newTeacher)
-            return "teacherList"
-        }
+           val selectedSubjects: List<Subject>? = subjectApiService
+               .getSubjectsById(subjectIds.split(",").map { it.trim().toInt() })
+            newTeacher.subjects = selectedSubjects!!.toMutableList()
 
         teacherApiService.addOrUpdateTeacher(newTeacher)
         return "redirect:/teachers"

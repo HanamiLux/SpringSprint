@@ -14,10 +14,10 @@
     <form action="/teachers/addOrUpdate" method="post" th:object="${teacher}" class="mb-6">
       <input type="text" th:field="*{name}" placeholder="Имя" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
       <input type="text" th:field="*{lastName}" placeholder="Фамилия" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-      <select th:field="*{subjects}" multiple required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <select name="subjects" multiple required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
         <option value="">Выберите предметы</option>
         <th:block th:each="sub : ${availableSubjects}">
-          <option th:value="${sub}" th:text="${sub}"></option>
+          <option th:value="${sub.id}" th:text="${sub.name}"></option>
         </th:block>
       </select>
       <input type="number" th:field="*{age}" placeholder="Возраст" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
