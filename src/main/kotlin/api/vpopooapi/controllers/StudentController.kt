@@ -25,7 +25,7 @@ class StudentController(
         @RequestParam lastName: String?,
         @RequestParam firstName: String?,
         @RequestParam middleName: String?
-    ): ResponseEntity<List<StudentModel>> {
+    ): ResponseEntity<List<StudentDTO>> {
         val students = studentService.findStudentByName(name, lastName, firstName, middleName)
         return ResponseEntity.ok(students)
     }

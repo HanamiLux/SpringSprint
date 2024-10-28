@@ -30,8 +30,9 @@ class StudentServiceImpl @Autowired constructor(
         studentRepository.deleteById(id)
     }
 
-    override fun findStudentByName(name: String?, lastName: String?, firstName: String?, middleName: String?): List<StudentModel> {
-        return studentRepository.findStudentByName(name, lastName, firstName, middleName).map { it }
+    override fun findStudentByName(name: String?, lastName: String?, firstName: String?, middleName: String?): List<StudentDTO> {
+        val students = studentRepository.findStudentByName(name, lastName, firstName, middleName).map { it }
+        return students.map { it.toDTO() }
     }
 
     override fun deleteMultipleStudents(studentIds: List<Int>) {
